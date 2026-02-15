@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  slug        String   @unique
+  description String?  @db.Text
+  
+  jobs        Job[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Job {
+  id          Int      @id @default(autoincrement())
+  title       String   // Job title
+  department  String?  // Department/Category (legacy - will be replaced by categoryId)
+  categoryId  Int?     // Category relationship
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  location    String   // Work location
+  type        String   @default("full-time") // full-time, part-time, contract, internship
+  salary      String?  // Salary range (e.g., "15-20 triệu VNĐ")
+  quantity    Int      @default(1) // Number of vacancies
+  description String?  @db.Text // Job description
+  requirements String? @db.Text // Job requirements
+  benefits    String?  @db.Text // Benefits
+  status      String   @default("active") // active, inactive, closed
+  publishedAt DateTime? // When job was published
+  deadline    DateTime? // Application deadline
+  
+  candidates  Candidate[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([categoryId])
+}
+
+model Candidate {
+  id          Int      @id @default(autoincrement())
+  fullName    String   // Full name
+  email       String   // Email
+  phone       String   // Phone number
+  resume      String?  @db.Text // Resume file URL or text
+  coverLetter String?  @db.Text // Cover letter
+  status      String   @default("pending") // pending, reviewing, interviewed, accepted, rejected
+  appliedAt   DateTime @default(now())
+  
+  jobId       Int
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime? // Soft delete timestamp
+  
+  @@index([jobId])
+  @@index([email])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String   // Hashed password
+  role      String   @default("admin") // admin, editor
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+

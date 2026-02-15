@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Job` ADD COLUMN `quantity` INT NOT NULL DEFAULT 1;

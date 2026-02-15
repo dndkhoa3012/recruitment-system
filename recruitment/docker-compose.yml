@@ -1,0 +1,45 @@
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: recruitment_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: recruitment_db
+      MYSQL_USER: recruitment
+      MYSQL_PASSWORD: RecruitPass2024
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: recruitment_app
+    restart: always
+    environment:
+      DATABASE_URL: "mysql://recruitment:RecruitPass2024@db:3306/recruitment_db"
+      NODE_ENV: production
+      PORT: 3000
+      NEXTAUTH_SECRET: "phuquoctrip-recruitment-secret-2024-very-long-and-secure"
+      NEXTAUTH_URL: "https://tuyendung.phuquoctrip.com"
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "3010:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy && node prisma/seed-prod.js && npm start"
+
+volumes:
+  mysql_data:
