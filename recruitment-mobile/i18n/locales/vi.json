@@ -1,0 +1,58 @@
+{
+    "welcome": "Xin chào",
+    "menu": {
+        "home": "Trang chủ",
+        "overview": "Tổng quan",
+        "jobs": "Việc làm",
+        "candidates": "Ứng viên",
+        "settings": "Cài đặt"
+    },
+    "settings": {
+        "language": "Ngôn ngữ"
+    },
+    "home": {
+        "title": "Tuyển dụng John's Tours",
+        "subtitle": "Tìm kiếm cơ hội nghề nghiệp tốt nhất tại Phú Quốc",
+        "explore_button": "Xem danh sách việc làm"
+    },
+    "jobs": {
+        "title": "Việc làm",
+        "search_placeholder": "Tìm kiếm việc làm...",
+        "salary": "Mức lương",
+        "location": "Địa điểm",
+        "deadline": "Hạn nộp",
+        "apply_button": "Ứng tuyển ngay",
+        "no_jobs": "Chưa có việc làm nào"
+    },
+    "job_detail": {
+        "description": "Mô tả công việc",
+        "requirements": "Yêu cầu công việc",
+        "benefits": "Quyền lợi",
+        "apply_now": "Ứng tuyển ngay"
+    },
+    "job_type": {
+        "full-time": "Toàn thời gian",
+        "part-time": "Bán thời gian",
+        "contract": "Hợp đồng",
+        "internship": "Thực tập",
+        "freelance": "Tự do"
+    },
+    "apply": {
+        "title": "Ứng tuyển",
+        "full_name": "Họ và tên",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "cover_letter": "Thư giới thiệu",
+        "cv_upload": "Tải lên CV (PDF, DOC)",
+        "submit": "Gửi hồ sơ",
+        "upload_placeholder": "Chưa chọn file",
+        "success_message": "Nộp hồ sơ thành công!",
+        "error_message": "Có lỗi xảy ra, vui lòng thử lại."
+    },
+    "common": {
+        "loading": "Đang tải...",
+        "error": "Đã có lỗi xảy ra",
+        "retry": "Thử lại",
+        "back": "Quay lại"
+    }
+}

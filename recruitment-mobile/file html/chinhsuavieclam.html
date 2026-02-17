@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Chỉnh sửa việc làm</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec5b13",
+                        "secondary-green": "#446534",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221610",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ec5b13;
+            border-radius: 10px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            border-color: #ec5b13 !important;
+            box-shadow: 0 0 0 2px rgba(236, 91, 19, 0.2) !important;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header
+        class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-white/10 px-4 py-3 flex items-center justify-between">
+        <button
+            class="flex items-center justify-center p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors text-primary">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h1 class="text-lg font-bold flex-1 text-center mr-10">Chỉnh sửa việc làm</h1>
+    </header>
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar pb-32">
+        <div class="max-w-md mx-auto px-4 py-6 space-y-6">
+            <!-- Basic Information Section -->
+            <section class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Tiêu đề công
+                        việc</label>
+                    <input
+                        class="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                        placeholder="Nhập tiêu đề" type="text" value="Chuyên viên Thiết kế UI/UX Cao cấp" />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Danh
+                            mục</label>
+                        <select
+                            class="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base appearance-none">
+                            <option>Thiết kế</option>
+                            <option>Công nghệ thông tin</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Số lượng
+                            tuyển</label>
+                        <input
+                            class="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                            type="number" value="2" />
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Địa điểm</label>
+                    <div class="relative">
+                        <input
+                            class="w-full h-12 pl-4 pr-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                            type="text" value="Dương Đông" />
+                        <span class="material-symbols-outlined absolute right-3 top-3 text-primary">location_on</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Job Details Section -->
+            <section class="space-y-4 pt-4 border-t border-slate-200 dark:border-white/10">
+                <div>
+                    <label class="block text-sm font-semibold mb-3 text-slate-700 dark:text-slate-300">Loại hình</label>
+                    <div class="flex gap-2 p-1 bg-slate-100 dark:bg-white/5 rounded-xl">
+                        <label
+                            class="flex-1 text-center py-2 rounded-lg cursor-pointer transition-all has-[:checked]:bg-primary has-[:checked]:text-white text-slate-500 dark:text-slate-400 font-medium text-sm">
+                            <input checked="" class="hidden" name="job_type" type="radio" />
+                            Toàn thời gian
+                        </label>
+                        <label
+                            class="flex-1 text-center py-2 rounded-lg cursor-pointer transition-all has-[:checked]:bg-primary has-[:checked]:text-white text-slate-500 dark:text-slate-400 font-medium text-sm">
+                            <input class="hidden" name="job_type" type="radio" />
+                            Bán thời gian
+                        </label>
+                        <label
+                            class="flex-1 text-center py-2 rounded-lg cursor-pointer transition-all has-[:checked]:bg-primary has-[:checked]:text-white text-slate-500 dark:text-slate-400 font-medium text-sm">
+                            <input class="hidden" name="job_type" type="radio" />
+                            Thực tập
+                        </label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Mức
+                            lương</label>
+                        <input
+                            class="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                            type="text" value="25.000.000đ" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Hạn
+                            nộp</label>
+                        <div class="relative">
+                            <input
+                                class="w-full h-12 px-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                                type="date" value="2024-12-31" />
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Trạng
+                        thái</label>
+                    <div
+                        class="flex items-center justify-between p-4 rounded-xl border border-secondary-green/30 bg-secondary-green/10">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-secondary-green">check_circle</span>
+                            <span class="font-medium text-secondary-green">Đang hoạt động</span>
+                        </div>
+                        <select
+                            class="bg-transparent border-none text-sm font-bold text-secondary-green focus:ring-0 cursor-pointer">
+                            <option>Thay đổi</option>
+                            <option>Tạm dừng</option>
+                            <option>Đã đóng</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <!-- Description Sections -->
+            <section class="space-y-6 pt-4 border-t border-slate-200 dark:border-white/10">
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Đoạn mở
+                        đầu</label>
+                    <textarea
+                        class="w-full min-h-[100px] p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                        placeholder="Giới thiệu ngắn gọn về vị trí...">Chúng tôi đang tìm kiếm một UI/UX Designer tài năng để cùng xây dựng những sản phẩm công nghệ đột phá.</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Mô tả công
+                        việc</label>
+                    <textarea
+                        class="w-full min-h-[150px] p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                        placeholder="Chi tiết các nhiệm vụ...">- Thiết kế giao diện cho ứng dụng mobile và web.
+- Phối hợp với team product để đưa ra giải pháp tối ưu.
+- Thực hiện prototype và kiểm thử người dùng.</textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2 text-slate-700 dark:text-slate-300">Các điểm chính
+                        (Yêu cầu)</label>
+                    <textarea
+                        class="w-full min-h-[120px] p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-base"
+                        placeholder="Các kỹ năng cần thiết...">- Tối thiểu 3 năm kinh nghiệm.
+- Thành thạo Figma, Adobe Creative Suite.
+- Tư duy sản phẩm và giải quyết vấn đề tốt.</textarea>
+                </div>
+            </section>
+        </div>
+    </main>
+    <!-- Sticky Footer Actions -->
+    <footer
+        class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-t border-slate-200 dark:border-white/10 flex flex-col gap-3">
+        <button
+            class="w-full h-14 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[0.98] transition-transform active:scale-95 flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">save</span>
+            Lưu thay đổi
+        </button>
+        <button
+            class="w-full h-12 bg-transparent text-slate-500 dark:text-slate-400 font-semibold rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+            Hủy bỏ
+        </button>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+{
+    "welcome": "Welcome",
+    "menu": {
+        "home": "Home",
+        "overview": "Overview",
+        "jobs": "Jobs",
+        "candidates": "Candidates",
+        "settings": "Settings"
+    },
+    "settings": {
+        "language": "Language"
+    },
+    "home": {
+        "title": "John's Tours Recruitment",
+        "subtitle": "Find the best career opportunities in Phu Quoc",
+        "explore_button": "Explore Jobs"
+    },
+    "jobs": {
+        "title": "Jobs",
+        "search_placeholder": "Search for jobs...",
+        "salary": "Salary",
+        "location": "Location",
+        "deadline": "Deadline",
+        "apply_button": "Apply Now",
+        "no_jobs": "No jobs found"
+    },
+    "job_detail": {
+        "description": "Job Description",
+        "requirements": "Requirements",
+        "benefits": "Benefits",
+        "apply_now": "Apply Now"
+    },
+    "job_type": {
+        "full-time": "Full-time",
+        "part-time": "Part-time",
+        "contract": "Contract",
+        "internship": "Internship",
+        "freelance": "Freelance"
+    },
+    "apply": {
+        "title": "Apply Job",
+        "full_name": "Full Name",
+        "email": "Email",
+        "phone": "Phone Number",
+        "cover_letter": "Cover Letter",
+        "cv_upload": "Upload CV (PDF, DOC)",
+        "submit": "Submit Application",
+        "upload_placeholder": "No file selected",
+        "success_message": "Application submitted successfully!",
+        "error_message": "An error occurred, please try again."
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Something went wrong",
+        "retry": "Retry",
+        "back": "Back"
+    }
+}

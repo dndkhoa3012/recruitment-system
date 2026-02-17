@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';
-import { getJobs } from '@/services/api';
+import { View, Text, ActivityIndicator, RefreshControl, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
+import { useRouter, Stack } from 'expo-router';
+import { getJobs, deleteJob } from '@/services/api';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors } from '@/constants/theme';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SwipeableItem } from '@/components/ui/SwipeableItem';
 
 export default function JobsScreen() {
-    const [jobs, setJobs] = useState([]);
+    const [jobs, setJobs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'closed'>('all');
     const router = useRouter();
+    const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
 
     const fetchJobs = async () => {
         try {
@@ -25,38 +35,184 @@ export default function JobsScreen() {
         fetchJobs();
     }, []);
 
+    const filteredJobs = React.useMemo(() => {
+        if (filterStatus === 'all') return jobs;
+        if (filterStatus === 'active') return jobs.filter(j => j.status === 'active');
+        return jobs.filter(j => j.status !== 'active');
+    }, [jobs, filterStatus]);
+
     const onRefresh = () => {
         setRefreshing(true);
         fetchJobs();
     };
 
+    const handleDelete = (id: string) => {
+        Alert.alert(
+            "Xác nhận xóa",
+            "Bạn có chắc chắn muốn xóa việc làm này không?",
+            [
+                { text: "Hủy", style: "cancel" },
+                {
+                    text: "Xóa",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await deleteJob(id);
+                            // Optimistic update or refresh
+                            setJobs(prev => prev.filter(job => job.id !== id));
+                            Alert.alert("Đã xóa", "Việc làm đã được xóa thành công.");
+                        } catch (e) {
+                            Alert.alert("Lỗi", "Không thể xóa việc làm.");
+                            console.error(e);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    // Track refs for swipeable rows
+    const rowRefs = React.useRef<Map<string, any>>(new Map());
+    const prevOpenedRow = React.useRef<any>(null);
+
+    const closeAnyOpenRow = () => {
+        if (prevOpenedRow.current) {
+            prevOpenedRow.current.close();
+            prevOpenedRow.current = null;
+        }
+    };
+
+    const onRowOpened = (key: string) => {
+        if (prevOpenedRow.current && prevOpenedRow.current !== rowRefs.current.get(key)) {
+            prevOpenedRow.current.close();
+        }
+        prevOpenedRow.current = rowRefs.current.get(key);
+    };
+
     const renderItem = ({ item }: { item: any }) => (
-        <TouchableOpacity
-            className="bg-white p-4 mb-3 rounded-lg shadow-sm border border-gray-100"
-            onPress={() => router.push(`/job/${item.id}`)}
-        >
-            <Text className="text-lg font-bold text-gray-900">{item.title}</Text>
-            <Text className="text-sm text-gray-500 mt-1">{item.location} • {item.type}</Text>
-            <View className="flex-row justify-between items-center mt-3">
-                <Text className="text-blue-600 font-medium">{item.salary || 'Thỏa thuận'}</Text>
-                <Text className="text-xs text-gray-400">{new Date(item.createdAt).toLocaleDateString()}</Text>
-            </View>
-        </TouchableOpacity>
+        <View className="mx-4 mb-4">
+            <SwipeableItem
+                ref={(ref) => {
+                    if (ref) {
+                        rowRefs.current.set(item.id.toString(), ref);
+                    } else {
+                        rowRefs.current.delete(item.id.toString());
+                    }
+                }}
+                onEdit={() => router.push(`/job/edit/${item.id}`)}
+                onDelete={() => handleDelete(item.id)}
+                onSwipeableOpen={() => onRowOpened(item.id.toString())}
+            >
+                <TouchableOpacity
+                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"
+                    onPress={() => {
+                        closeAnyOpenRow();
+                        router.push(`/job/${item.id}`);
+                    }}
+                    activeOpacity={0.7}
+                    delayPressIn={100}
+                >
+                    <View className="flex-row justify-between items-start mb-3">
+                        <View>
+                            <Text className="text-lg font-bold text-gray-900">{item.title}</Text>
+                        </View>
+                        <View className="bg-green-100 px-3 py-1 rounded-full">
+                            <Text className="text-xs font-bold text-green-700">Đang tuyển</Text>
+                        </View>
+                    </View>
+
+                    <View className="flex-row flex-wrap">
+                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
+                            <MaterialIcons name="corporate-fare" size={16} color="#64748b" />
+                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.category?.name || 'Nhân sự'}</Text>
+                        </View>
+                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
+                            <MaterialIcons name="location-on" size={16} color="#64748b" />
+                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.location}</Text>
+                        </View>
+                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
+                            <MaterialIcons name="schedule" size={16} color="#64748b" />
+                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{t(`job_type.${item.type}`, { defaultValue: item.type })}</Text>
+                        </View>
+                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
+                            <MaterialIcons name="payments" size={16} color="#64748b" />
+                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.salary || 'Thỏa thuận'}</Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </SwipeableItem>
+        </View>
+    );
+
+    const renderHeader = () => (
+        <View className="px-4 pb-4 bg-gray-50 pt-2" onStartShouldSetResponder={() => true} onResponderRelease={closeAnyOpenRow}>
+            {/* Create Button */}
+            <TouchableOpacity
+                className="w-full bg-orange-600 py-4 px-6 rounded-xl flex-row items-center justify-center gap-2 shadow-lg shadow-orange-200 mb-6"
+                onPress={() => {
+                    closeAnyOpenRow();
+                    router.push('/job/create');
+                }}
+            >
+                <MaterialIcons name="add-circle" size={24} color="white" />
+                <Text className="text-white font-bold text-lg">Tạo việc làm mới</Text>
+            </TouchableOpacity>
+
+            {/* Filters */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 overflow-visible" onScrollBeginDrag={closeAnyOpenRow}>
+                <TouchableOpacity
+                    onPress={() => { closeAnyOpenRow(); setFilterStatus('all'); }}
+                    className={`px-4 py-1.5 rounded-full mr-2 ${filterStatus === 'all' ? 'bg-orange-600' : 'bg-gray-200'}`}
+                >
+                    <Text className={`text-sm font-medium ${filterStatus === 'all' ? 'text-white' : 'text-gray-700'}`}>
+                        Tất cả ({jobs.length})
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => { closeAnyOpenRow(); setFilterStatus('active'); }}
+                    className={`px-4 py-1.5 rounded-full mr-2 ${filterStatus === 'active' ? 'bg-orange-600' : 'bg-gray-200'}`}
+                >
+                    <Text className={`text-sm font-medium ${filterStatus === 'active' ? 'text-white' : 'text-gray-700'}`}>
+                        Đang tuyển ({jobs.filter(j => j.status === 'active').length})
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => { closeAnyOpenRow(); setFilterStatus('closed'); }}
+                    className={`px-4 py-1.5 rounded-full mr-2 ${filterStatus === 'closed' ? 'bg-orange-600' : 'bg-gray-200'}`}
+                >
+                    <Text className={`text-sm font-medium ${filterStatus === 'closed' ? 'text-white' : 'text-gray-700'}`}>
+                        Đã đóng ({jobs.filter(j => j.status !== 'active').length})
+                    </Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </View>
     );
 
     return (
-        <View className="flex-1 bg-gray-50 pt-12 px-4">
-            <Text className="text-2xl font-bold mb-4 text-gray-900">Các vị trí đang tuyển</Text>
+        <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
+            <Stack.Screen options={{ headerShown: false }} />
+
+            <View onStartShouldSetResponder={() => true} onResponderRelease={closeAnyOpenRow}>
+                <ScreenHeader
+                    title="Quản lý Việc làm"
+                    centerTitle
+                />
+            </View>
 
             {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
+                <View className="flex-1 justify-center items-center">
+                    <ActivityIndicator size="large" color={Colors.light.tint} />
+                </View>
             ) : (
                 <FlatList
-                    data={jobs}
+                    data={filteredJobs}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id.toString()}
-                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                    ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">Hiện chưa có công việc nào.</Text>}
+                    ListHeaderComponent={renderHeader}
+                    contentContainerStyle={{ paddingBottom: 100 }}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.light.tint} />}
+                    ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">{t('jobs.no_jobs')}</Text>}
+                    onScrollBeginDrag={closeAnyOpenRow}
                 />
             )}
         </View>

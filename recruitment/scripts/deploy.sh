@@ -13,6 +13,6 @@ git push origin main
 
 # 2. Connect to VPS and deploy
 echo "CONN Connecting to VPS..."
-ssh -t $VPS_USER@$VPS_IP "cd $APP_DIR && git pull origin main && docker compose up -d --build && docker image prune -f"
+ssh -t $VPS_USER@$VPS_IP "cd $APP_DIR && git fetch --all && git reset --hard origin/main && cd recruitment && docker compose up -d --build && docker image prune -f"
 
 echo "🎉 Deployment complete!"

@@ -1,12 +1,16 @@
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import { applyForJob } from '../../services/api';
+import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ApplyScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
 
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -82,88 +86,94 @@ export default function ApplyScreen() {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Ứng tuyển', headerBackTitle: 'Chi tiết' }} />
-            <View className="flex-1 bg-white">
-                <ScrollView className="px-4 py-6">
-                    <Text className="text-xl font-bold mb-6 text-gray-900">Thông tin ứng viên</Text>
+            <Stack.Screen options={{ title: t('apply.title'), headerBackTitle: t('common.back') }} />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={100}
+            >
+                <View className="flex-1 bg-white" style={{ paddingBottom: Math.max(insets.bottom, 20) }}>
+                    <ScrollView className="px-4 py-6">
+                        <Text className="text-xl font-bold mb-6 text-gray-900">{t('apply.title')}</Text>
 
-                    <View className="mb-4">
-                        <Text className="mb-2 font-medium text-gray-700">Họ và tên <Text className="text-red-500">*</Text></Text>
-                        <TextInput
-                            className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white"
-                            value={fullName}
-                            onChangeText={setFullName}
-                            placeholder="Nguyễn Văn A"
-                        />
-                    </View>
+                        <View className="mb-4">
+                            <Text className="mb-2 font-medium text-gray-700">{t('apply.full_name')} <Text className="text-red-500">*</Text></Text>
+                            <TextInput
+                                className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white"
+                                value={fullName}
+                                onChangeText={setFullName}
+                                placeholder="Nguyễn Văn A"
+                            />
+                        </View>
 
-                    <View className="mb-4">
-                        <Text className="mb-2 font-medium text-gray-700">Email <Text className="text-red-500">*</Text></Text>
-                        <TextInput
-                            className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white"
-                            value={email}
-                            onChangeText={setEmail}
-                            placeholder="example@email.com"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                        />
-                    </View>
+                        <View className="mb-4">
+                            <Text className="mb-2 font-medium text-gray-700">{t('apply.email')} <Text className="text-red-500">*</Text></Text>
+                            <TextInput
+                                className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white"
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder="example@email.com"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+                        </View>
 
-                    <View className="mb-4">
-                        <Text className="mb-2 font-medium text-gray-700">Số điện thoại <Text className="text-red-500">*</Text></Text>
-                        <TextInput
-                            className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white"
-                            value={phone}
-                            onChangeText={setPhone}
-                            placeholder="0909xxxxxx"
-                            keyboardType="phone-pad"
-                        />
-                    </View>
+                        <View className="mb-4">
+                            <Text className="mb-2 font-medium text-gray-700">{t('apply.phone')} <Text className="text-red-500">*</Text></Text>
+                            <TextInput
+                                className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white"
+                                value={phone}
+                                onChangeText={setPhone}
+                                placeholder="0909xxxxxx"
+                                keyboardType="phone-pad"
+                            />
+                        </View>
 
-                    <View className="mb-4">
-                        <Text className="mb-2 font-medium text-gray-700">CV / Hồ sơ</Text>
+                        <View className="mb-4">
+                            <Text className="mb-2 font-medium text-gray-700">{t('apply.cv_upload')}</Text>
+                            <TouchableOpacity
+                                className="border border-dashed border-gray-400 rounded-lg p-6 items-center justify-center bg-gray-50 active:bg-gray-100"
+                                onPress={pickDocument}
+                            >
+                                {resume ? (
+                                    <View className="items-center">
+                                        <Text className="text-blue-600 font-medium mb-1">{resume.name}</Text>
+                                        <Text className="text-xs text-gray-400">Nhấn để thay đổi</Text>
+                                    </View>
+                                ) : (
+                                    <View className="items-center">
+                                        <Text className="text-gray-500 font-medium">{t('apply.upload_placeholder')}</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+
+                        <View className="mb-6">
+                            <Text className="mb-2 font-medium text-gray-700">{t('apply.cover_letter')}</Text>
+                            <TextInput
+                                className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white h-32 text-top"
+                                value={coverLetter}
+                                onChangeText={setCoverLetter}
+                                placeholder="..."
+                                multiline
+                                textAlignVertical="top"
+                            />
+                        </View>
+
                         <TouchableOpacity
-                            className="border border-dashed border-gray-400 rounded-lg p-6 items-center justify-center bg-gray-50 active:bg-gray-100"
-                            onPress={pickDocument}
+                            className={`py-4 rounded-xl flex items-center justify-center shadow-lg mb-10 ${submitting ? 'bg-gray-400' : 'bg-blue-600 active:bg-blue-700'}`}
+                            onPress={handleSubmit}
+                            disabled={submitting}
                         >
-                            {resume ? (
-                                <View className="items-center">
-                                    <Text className="text-blue-600 font-medium mb-1">{resume.name}</Text>
-                                    <Text className="text-xs text-gray-400">Nhấn để thay đổi</Text>
-                                </View>
+                            {submitting ? (
+                                <ActivityIndicator color="#fff" />
                             ) : (
-                                <View className="items-center">
-                                    <Text className="text-gray-500 font-medium">Tải lên CV (PDF, DOC)</Text>
-                                </View>
+                                <Text className="text-white font-bold text-lg">{t('apply.submit')}</Text>
                             )}
                         </TouchableOpacity>
-                    </View>
-
-                    <View className="mb-6">
-                        <Text className="mb-2 font-medium text-gray-700">Thư giới thiệu</Text>
-                        <TextInput
-                            className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:border-blue-500 focus:bg-white h-32 text-top"
-                            value={coverLetter}
-                            onChangeText={setCoverLetter}
-                            placeholder="Giới thiệu ngắn gọn về bản thân..."
-                            multiline
-                            textAlignVertical="top"
-                        />
-                    </View>
-
-                    <TouchableOpacity
-                        className={`py-4 rounded-xl flex items-center justify-center shadow-lg mb-10 ${submitting ? 'bg-gray-400' : 'bg-blue-600 active:bg-blue-700'}`}
-                        onPress={handleSubmit}
-                        disabled={submitting}
-                    >
-                        {submitting ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text className="text-white font-bold text-lg">Gửi hồ sơ</Text>
-                        )}
-                    </TouchableOpacity>
-                </ScrollView>
-            </View>
+                    </ScrollView>
+                </View>
+            </KeyboardAvoidingView>
         </>
     );
 }

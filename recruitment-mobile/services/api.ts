@@ -42,4 +42,75 @@ export const applyForJob = async (formData: FormData) => {
     }
 };
 
+export const createJob = async (jobData: any) => {
+    try {
+        const response = await api.post('/jobs', jobData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating job:', error);
+        throw error;
+    }
+};
+
+export const updateJob = async (id: number | string, jobData: any) => {
+    try {
+        const response = await api.put(`/jobs/${id}`, jobData);
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating job ${id}:`, error);
+        throw error;
+    }
+};
+
+export const deleteJob = async (id: number | string) => {
+    try {
+        const response = await api.delete(`/jobs/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting job ${id}:`, error);
+        throw error;
+    }
+};
+
+// Category APIs
+export const getCategories = async () => {
+    try {
+        const response = await api.get('/categories');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        throw error;
+    }
+};
+
+export const createCategory = async (categoryData: any) => {
+    try {
+        const response = await api.post('/categories', categoryData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating category:', error);
+        throw error;
+    }
+};
+
+export const updateCategory = async (id: number | string, categoryData: any) => {
+    try {
+        const response = await api.put(`/categories/${id}`, categoryData);
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating category ${id}:`, error);
+        throw error;
+    }
+};
+
+export const deleteCategory = async (id: number | string) => {
+    try {
+        const response = await api.delete(`/categories/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting category ${id}:`, error);
+        throw error;
+    }
+};
+
 export default api;
