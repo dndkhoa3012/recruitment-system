@@ -92,7 +92,7 @@ export default function JobDetailPage() {
             {/* Main Content */}
             <main className="max-w-4xl mx-auto px-4 py-8 pb-28">
                 {/* Job Header Section */}
-                <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm mb-6 border border-gray-100 dark:border-gray-800">
+                <div className="bg-white dark:bg-gray-900 rounded-xl p-6 mb-4">
                     <div className="flex flex-col md:flex-row gap-6 items-start">
                         <div className="size-24 bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-700">
                             <div
@@ -134,55 +134,64 @@ export default function JobDetailPage() {
                 </div>
 
                 {/* Job Details Content */}
-                <div className="space-y-6">
+                <div className="space-y-2">
                     {/* Description */}
-                    {job.description && (job.description.intro || job.description.points?.length > 0) && (
-                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                    {/* Introduction */}
+                    {job.description && job.description.intro && (
+                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[#13a4ec]" style={{ fontVariationSettings: "'FILL' 1" }}>info</span>
+                                Giới thiệu
+                            </h3>
+                            <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                <p>{job.description.intro}</p>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Description Points */}
+                    {job.description && job.description.points && job.description.points.length > 0 && (
+                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#13a4ec]" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
                                 Mô tả công việc
                             </h3>
-                            <div className="space-y-4 text-gray-700 dark:text-gray-300 leading-relaxed">
-                                {job.description.intro && <p>{job.description.intro}</p>}
-                                {job.description.points && job.description.points.length > 0 && (
-                                    <ul className="space-y-3">
-                                        {job.description.points.map((point, index) => (
-                                            <li key={index} className="flex items-start gap-3">
-                                                <span className="material-symbols-outlined text-[#13a4ec] text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                                                <span>{point}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
+                            <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
+                                <ul className="space-y-2">
+                                    {job.description.points.map((point, index) => (
+                                        <li key={index} className="flex items-start gap-2">
+                                            <span className="material-symbols-outlined text-[#13a4ec] text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                            <span>{point}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </section>
                     )}
 
                     {/* Requirements */}
                     {job.requirements && job.requirements.length > 0 && (
-                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#13a4ec]" style={{ fontVariationSettings: "'FILL' 1" }}>assignment_turned_in</span>
                                 Yêu cầu công việc
                             </h3>
-                            <div className="space-y-3">
-                                <div className="p-4 bg-[#f6f7f8] dark:bg-gray-800 rounded-lg border-l-4 border-[#13a4ec]">
-                                    <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-                                        {job.requirements.map((req, index) => (
-                                            <li key={index} className="flex items-start gap-3">
-                                                <span className="material-symbols-outlined text-[#13a4ec] text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                                <span>{req}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                            <div className="space-y-2 text-gray-700 dark:text-gray-300">
+                                <ul className="space-y-2">
+                                    {job.requirements.map((req, index) => (
+                                        <li key={index} className="flex items-start gap-2">
+                                            <span className="material-symbols-outlined text-[#13a4ec] text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                            <span>{req}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         </section>
                     )}
 
                     {/* Benefits */}
                     {job.benefits && job.benefits.length > 0 && (
-                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <section className="bg-white dark:bg-gray-900 rounded-xl p-6">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[#13a4ec]" style={{ fontVariationSettings: "'FILL' 1" }}>redeem</span>
                                 Quyền lợi

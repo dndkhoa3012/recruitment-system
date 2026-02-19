@@ -148,7 +148,7 @@ export default function EditJobPage() {
                         <Input placeholder="VD: Nhân viên kinh doanh" />
                     </Form.Item>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Form.Item
                             label="Danh mục"
                             name="categoryId"
@@ -168,30 +168,6 @@ export default function EditJobPage() {
                         </Form.Item>
 
                         <Form.Item
-                            label="Địa điểm"
-                            name="location"
-                            rules={[{ required: true, message: 'Vui lòng nhập địa điểm' }]}
-                        >
-                            <Input placeholder="VD: Hồ Chí Minh" />
-                        </Form.Item>
-                    </div>
-
-                    {categories.length === 0 && !loadingCategories && (
-                        <Alert
-                            message="Chưa có danh mục nào"
-                            description={
-                                <span>
-                                    Bạn cần tạo danh mục trước. <Link href="/admin/categories/create" className="text-blue-600 hover:underline">Tạo danh mục ngay</Link>
-                                </span>
-                            }
-                            type="info"
-                            showIcon
-                            className="mb-4"
-                        />
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Form.Item
                             label="Loại"
                             name="type"
                         >
@@ -209,7 +185,31 @@ export default function EditJobPage() {
                         >
                             <Input placeholder="VD: 20-30 triệu VNĐ" />
                         </Form.Item>
+                    </div>
 
+                    {categories.length === 0 && !loadingCategories && (
+                        <Alert
+                            message="Chưa có danh mục nào"
+                            description={
+                                <span>
+                                    Bạn cần tạo danh mục trước. <Link href="/admin/categories/create" className="text-blue-600 hover:underline">Tạo danh mục ngay</Link>
+                                </span>
+                            }
+                            type="info"
+                            showIcon
+                            className="mb-4"
+                        />
+                    )}
+
+                    <Form.Item
+                        label="Địa điểm"
+                        name="location"
+                        rules={[{ required: true, message: 'Vui lòng nhập địa điểm' }]}
+                    >
+                        <Input placeholder="VD: Dương Đông" />
+                    </Form.Item>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Form.Item
                             label="Số lượng tuyển"
                             name="quantity"
@@ -217,16 +217,13 @@ export default function EditJobPage() {
                         >
                             <InputNumber min={1} style={{ width: '100%' }} placeholder="VD: 5" />
                         </Form.Item>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Form.Item
                             label="Trạng thái"
                             name="status"
                         >
                             <Select>
                                 <Select.Option value="active">Đang tuyển</Select.Option>
-                                <Select.Option value="inactive">Tạm dừng</Select.Option>
                                 <Select.Option value="closed">Đã đóng</Select.Option>
                             </Select>
                         </Form.Item>
@@ -239,26 +236,24 @@ export default function EditJobPage() {
                                 style={{ width: '100%' }}
                                 format="DD/MM/YYYY"
                                 placeholder="Chọn ngày hết hạn"
+                                disabledDate={(current) => current && current < dayjs().startOf('day')}
                             />
                         </Form.Item>
                     </div>
 
                     <Form.Item
-                        label="Mô tả công việc"
                         name="description"
                     >
                         <DescriptionEditor />
                     </Form.Item>
 
                     <Form.Item
-                        label="Yêu cầu"
                         name="requirements"
                     >
                         <RequirementsEditor />
                     </Form.Item>
 
                     <Form.Item
-                        label="Quyền lợi"
                         name="benefits"
                     >
                         <BenefitsEditor />

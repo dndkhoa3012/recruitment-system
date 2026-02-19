@@ -118,7 +118,7 @@ export default function CreateJobPage() {
                         <Input placeholder="VD: Nhân viên kinh doanh" />
                     </Form.Item>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Form.Item
                             label="Danh mục"
                             name="categoryId"
@@ -138,18 +138,6 @@ export default function CreateJobPage() {
                         </Form.Item>
 
                         <Form.Item
-                            label="Địa điểm"
-                            name="location"
-                            rules={[{ required: true, message: 'Vui lòng nhập địa điểm' }]}
-                        >
-                            <Input placeholder="VD: Dương Đông" />
-                        </Form.Item>
-                    </div>
-
-                    {/* Alert removed, handling via Modal in useEffect */}
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <Form.Item
                             label="Loại"
                             name="type"
                         >
@@ -167,7 +155,17 @@ export default function CreateJobPage() {
                         >
                             <Input placeholder="VD: 20-30 triệu VNĐ" />
                         </Form.Item>
+                    </div>
 
+                    <Form.Item
+                        label="Địa điểm"
+                        name="location"
+                        rules={[{ required: true, message: 'Vui lòng nhập địa điểm' }]}
+                    >
+                        <Input placeholder="VD: Dương Đông" />
+                    </Form.Item>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Form.Item
                             label="Số lượng tuyển"
                             name="quantity"
@@ -176,35 +174,33 @@ export default function CreateJobPage() {
                         >
                             <InputNumber min={1} style={{ width: '100%' }} placeholder="VD: 5" />
                         </Form.Item>
+
+                        <Form.Item
+                            label="Hạn nộp hồ sơ"
+                            name="deadline"
+                        >
+                            <DatePicker
+                                style={{ width: '100%' }}
+                                format="DD/MM/YYYY"
+                                placeholder="Chọn ngày hết hạn"
+                                disabledDate={(current) => current && current < dayjs().startOf('day')}
+                            />
+                        </Form.Item>
                     </div>
 
                     <Form.Item
-                        label="Hạn nộp hồ sơ"
-                        name="deadline"
-                    >
-                        <DatePicker
-                            style={{ width: '100%' }}
-                            format="DD/MM/YYYY"
-                            placeholder="Chọn ngày hết hạn"
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Mô tả công việc"
                         name="description"
                     >
                         <DescriptionEditor />
                     </Form.Item>
 
                     <Form.Item
-                        label="Yêu cầu"
                         name="requirements"
                     >
                         <RequirementsEditor />
                     </Form.Item>
 
                     <Form.Item
-                        label="Quyền lợi"
                         name="benefits"
                     >
                         <BenefitsEditor />
