@@ -1,55 +1,77 @@
-# Đẩy code lên git
+# HƯỚNG DẪN VẬN HÀNH & CẬP NHẬT WEB TUYỂN DỤNG
+
+Tài liệu này dùng để lưu trữ các lệnh quan trọng khi vận hành website Tuyển Dụng (Recruitment).
+
+---
+
+## 1. CẬP NHẬT TỰ ĐỘNG (Khuyên dùng) - "Một Chạm"
+
+Thích hợp cho mọi trường hợp. Chỉ cần chạy lệnh này ở máy tính của anh:
 
 ```bash
-cd /Users/dkhoa/Công việc/CÔNG VIỆC JOHN'S TOURS/Tuyển dụng/recruitment
-git add .
-git commit -m "Update"
-git push origin main
+./deploy.sh "Ghi chú cập nhật"
+```
+*   Tự động lưu code lên Git.
+*   Tự động Build & Push lên VPS.
+*   VPS tự phát hiện và cập nhật sau 5 phút.
+
+---
+
+## 2. CẬP NHẬT THỦ CÔNG TRÊN VPS (Tiết kiệm băng thông)
+
+Thích hợp khi mạng yếu hoặc chỉ sửa chỉnh sửa nhỏ. VPS sẽ tự tải code về và tự build.
+
+**Bước 1: SSH vào VPS**
+```bash
+ssh root@103.159.50.249
+```
+**Bước 2: Chạy lệnh cập nhật:**
+```bash
+cd /var/www/recruitment-system/recruitment && git pull origin main && docker compose up -d --build
 ```
 
-# Hướng Dẫn Cập Nhật Siêu Tốc ("Một Chạm" - Zero-touch)
+---
 
-Từ giờ, để cập nhật web, anh **KHÔNG** cần SSH vào VPS, không cần nhớ lệnh dài dòng.
-Mọi thứ đã được tự động hoá 100%.
+## 3. LỆNH CỨU HỘ KHẨN CẤP (Khi cần reset hoàn toàn)
+
+Dùng khi web bị lỗi nặng hoặc muốn đảm bảo mọi thứ sạch sẽ nhất.
+
+```bash
+ssh root@103.159.50.249 "cd /var/www/recruitment-system/recruitment && docker compose down && docker compose pull && docker compose up -d"
+```
 
 ---
 
-## 1. Cách Cập Nhật Code Mới (Làm Hàng Ngày)
+## 4. CÁCH XEM TIẾN ĐỘ & LOGS
 
-Sau khi sửa code xong trên máy tính, anh chỉ cần làm duy nhất 1 bước:
+**Xem tiến độ Update (Watchtower):**
+```bash
+ssh root@103.159.50.249 "docker logs -f recruitment_watchtower"
+```
 
-1.  Mở Terminal tại thư mục dự án.
-2.  Chạy lệnh thần thánh này:
-
-    ```bash
-    ./deploy.sh
-    ```
-    *(Nếu máy báo lỗi quyền, hãy chạy: `chmod +x deploy.sh` trước nhé).*
-
-👉 **XONG!** Lệnh này sẽ tự động đóng gói code và đẩy lên mây.
-Hệ thống **"Watchtower"** trên VPS sẽ tự động phát hiện bản mới và cập nhật trong vòng **5 phút**. Anh cứ đi pha cà phê rồi quay lại kiểm tra web là được.
+**Xem logs (lỗi/trạng thái) của Web Tuyển Dụng:**
+```bash
+ssh root@103.159.50.249 "docker logs -f recruitment_app"
+```
 
 ---
 
-## 2. Cách Cứu Hộ (Khi Web Bị Lỗi/Sập)
+## 5. THÔNG TIN DATABASE (Để kết nối Navicat)
 
-Nếu web không tự cập nhật hoặc bị lỗi, anh vẫn có thể vào VPS kiểm tra như cũ:
+*   **Tab SSH:**
+    *   **Host:** `103.159.50.249`
+    *   **Port:** `22` (Quan trọng)
+    *   **User:** `root`
+    *   **Password:** (Mật khẩu VPS)
 
-1.  SSH vào VPS:
-    ```bash
-    ssh root@103.159.50.249
-    ```
-2.  Vào thư mục web:
-    ```bash
-    cd /var/www/recruitment-system/recruitment
-    ```
-tôi3.  Kéo bản mới về chạy lại thủ công:
-    ```bash
-    docker compose pull
-    docker compose up -d
-    ```
+*   **Tab General:**
+    *   **Host:** `localhost`
+    *   **Port:** `3307`
+    *   **User:** `recruitment`
+    *   **Password:** `RecruitPass2024`
 
 ---
-**Lưu ý:**
--   Web Tuyển Dụng (`Recruitment`) chạy bằng **Docker + Watchtower** (Tự động cập nhật).
--   Các web cũ (`HR`, `FNB`, `Bar`) chạy bằng **PM2** (Cần bật thủ công nếu sập).
+
+## *Ghi chú kỹ thuật (Cho Dev)*
+-   **Đường dẫn project trên VPS:** `/var/www/recruitment-system/recruitment`
+-   **Database:** MySQL 8.0 (Volume: `mysql_data`).
