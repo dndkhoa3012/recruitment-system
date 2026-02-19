@@ -1,92 +1,46 @@
-# Hướng Dẫn Cập Nhật Website (Phương Pháp Tối Ưu - Docker Hub)
+# Hướng Dẫn Cập Nhật Siêu Tốc ("Một Chạm" - Zero-touch)
 
-Đây là cách **an toàn nhất và nhanh nhất** để cập nhật website Recuitment.
-Chúng ta sẽ Build code ở máy tính cá nhân (mạnh mẽ) rồi đẩy lên mạng, VPS chỉ việc tải về chạy (nhẹ nhàng).
+Từ giờ, để cập nhật web, anh **KHÔNG** cần SSH vào VPS, không cần nhớ lệnh dài dòng.
+Mọi thứ đã được tự động hoá 100%.
 
 ---
 
-## 1. Chuẩn Bị Lần Đầu (Chỉ làm 1 lần duy nhất)
+## 1. Cách Cập Nhật Code Mới (Làm Hàng Ngày)
 
-1.  **Đăng ký tài khoản Docker Hub**: [https://hub.docker.com/](https://hub.docker.com/) (Username ví dụ: `khoa3012`).
-2.  **Đăng nhập trên máy tính cá nhân**:
-    Mở Terminal và chạy:
+Sau khi sửa code xong trên máy tính, anh chỉ cần làm duy nhất 1 bước:
+
+1.  Mở Terminal tại thư mục dự án.
+2.  Chạy lệnh thần thánh này:
+
     ```bash
-    docker login
+    ./deploy.sh
     ```
-    *(Nhập username và password vừa tạo)*.
+    *(Nếu máy báo lỗi quyền, hãy chạy: `chmod +x deploy.sh` trước nhé).*
 
-3.  **Đăng nhập trên VPS**:
-    SSH vào VPS và cũng chạy lệnh tương tự:
+👉 **XONG!** Lệnh này sẽ tự động đóng gói code và đẩy lên mây.
+Hệ thống **"Watchtower"** trên VPS sẽ tự động phát hiện bản mới và cập nhật trong vòng **5 phút**. Anh cứ đi pha cà phê rồi quay lại kiểm tra web là được.
+
+---
+
+## 2. Cách Cứu Hộ (Khi Web Bị Lỗi/Sập)
+
+Nếu web không tự cập nhật hoặc bị lỗi, anh vẫn có thể vào VPS kiểm tra như cũ:
+
+1.  SSH vào VPS:
     ```bash
     ssh root@103.159.50.249
-    docker login
     ```
-
----
-
-## 2. Quy Trình Cập Nhật (Làm mỗi khi sửa code)
-
-Mỗi khi anh sửa code xong và muốn đẩy lên web mới:
-
-### Bước 1: Build & Đẩy Code (Tại máy cá nhân)
-Chạy lệnh này tại thư mục code trên máy tính của anh:
-
-```bash
-# 1. Build bản nén
-docker build -t dndkhoa3012/recruitment-app:latest . --platform linux/amd64
-
-# 2. Đẩy lên mạng
-docker push dndkhoa3012/recruitment-app:latest
-```
-*(Lưu ý: `--platform linux/amd64` là bắt buộc để code chạy được trên VPS Linux).*
-
-### Bước 2: Tải & Chạy (Tại VPS)
-SSH vào VPS và chạy lệnh này:
-
-```bash
-ssh root@103.159.50.249
-
-# Vào thư mục web
-cd /var/www/recruitment-system/recruitment
-
-# Tải bản mới về & Chạy lại
-docker compose pull
-docker compose up -d
-```
-**(Thế là xong! Web sẽ tự động cập nhật trong tích tắc).**
-
----
-
-## 3. Cứu Hộ Khi VPS Bị Tắt (Lỗi 502)
-
-Nếu lỡ tay làm sập VPS hoặc hết RAM khiến các web khác (`app.phuquoctrip.com`, `hr`, `fnb`...) bị tắt (lỗi 502), hãy làm theo các bước sau để bật lại:
-
-### Cách 1: Hồi sinh tự động (Dùng PM2)
-```bash
-pm2 resurrect
-```
-*(Lệnh này sẽ bật lại tất cả các web chạy bằng Node.js như HR, Bar, VPS Proxy...)*.
-
-### Cách 2: Bật thủ công (Nếu cách 1 không được)
-Chạy lần lượt các lệnh sau:
-
-```bash
-# 1. Bật Proxy tổng (Quan trọng nhất)
-cd /var/www/vps && pm2 start package.json --name vps
-
-# 2. Bật Web chính
-cd /var/www/app.phuquoctrip.com && pm2 start package.json --name app.phuquoctrip.com
-
-# 3. Bật FNB & HR
-cd /var/www/fnb && pm2 start package.json --name fnb
-cd /var/www/hr && pm2 start package.json --name hr
-
-# 4. Bật Backend Bar
-cd /var/www/jt-bar-backend && pm2 start dist/src/main.js --name jt-bar-backend
-```
+2.  Vào thư mục web:
+    ```bash
+    cd /var/www/recruitment-system/recruitment
+    ```
+3.  Kéo bản mới về chạy lại thủ công:
+    ```bash
+    docker compose pull
+    docker compose up -d
+    ```
 
 ---
 **Lưu ý:**
--   Web Tuyển Dụng (`Recruitment`) chạy bằng **Docker**.
--   Các web cũ (`HR`, `FNB`, `Bar`...) chạy bằng **PM2**.
--   Hai hệ thống này chạy song song, không ảnh hưởng nhau nếu làm đúng quy trình trên.
+-   Web Tuyển Dụng (`Recruitment`) chạy bằng **Docker + Watchtower** (Tự động cập nhật).
+-   Các web cũ (`HR`, `FNB`, `Bar`) chạy bằng **PM2** (Cần bật thủ công nếu sập).

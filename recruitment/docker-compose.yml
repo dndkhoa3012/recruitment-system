@@ -42,5 +42,14 @@ services:
     command: >
       sh -c "npx prisma migrate deploy && node prisma/seed-prod.js && npm start"
 
+  # Auto Update Service (Zero-touch Deployment)
+  watchtower:
+    image: containrrr/watchtower
+    container_name: recruitment_watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup
+    restart: always
+
 volumes:
   mysql_data:
