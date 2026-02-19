@@ -1,3 +1,12 @@
+# Đẩy code lên git
+
+```bash
+cd /Users/dkhoa/Công việc/CÔNG VIỆC JOHN'S TOURS/Tuyển dụng/recruitment
+git add .
+git commit -m "Update"
+git push origin main
+```
+
 # Hướng Dẫn Cập Nhật Siêu Tốc ("Một Chạm" - Zero-touch)
 
 Từ giờ, để cập nhật web, anh **KHÔNG** cần SSH vào VPS, không cần nhớ lệnh dài dòng.
@@ -34,7 +43,7 @@ Nếu web không tự cập nhật hoặc bị lỗi, anh vẫn có thể vào V
     ```bash
     cd /var/www/recruitment-system/recruitment
     ```
-3.  Kéo bản mới về chạy lại thủ công:
+tôi3.  Kéo bản mới về chạy lại thủ công:
     ```bash
     docker compose pull
     docker compose up -d
