@@ -1,80 +1,92 @@
-# Hướng Dẫn Cập Nhật Website (Future Updates)
+# Hướng Dẫn Cập Nhật Website (Phương Pháp Tối Ưu - Docker Hub)
 
-Sau này khi anh sửa code hoặc thêm tính năng mới, anh chỉ cần làm **3 bước đơn giản** này để cập nhật lên Server:
+Đây là cách **an toàn nhất và nhanh nhất** để cập nhật website Recuitment.
+Chúng ta sẽ Build code ở máy tính cá nhân (mạnh mẽ) rồi đẩy lên mạng, VPS chỉ việc tải về chạy (nhẹ nhàng).
 
-## 1. Tại máy cá nhân (Local)
-Sau khi sửa code xong, hãy đẩy code lên GitHub:
+---
+
+## 1. Chuẩn Bị Lần Đầu (Chỉ làm 1 lần duy nhất)
+
+1.  **Đăng ký tài khoản Docker Hub**: [https://hub.docker.com/](https://hub.docker.com/) (Username ví dụ: `khoa3012`).
+2.  **Đăng nhập trên máy tính cá nhân**:
+    Mở Terminal và chạy:
+    ```bash
+    docker login
+    ```
+    *(Nhập username và password vừa tạo)*.
+
+3.  **Đăng nhập trên VPS**:
+    SSH vào VPS và cũng chạy lệnh tương tự:
+    ```bash
+    ssh root@103.159.50.249
+    docker login
+    ```
+
+---
+
+## 2. Quy Trình Cập Nhật (Làm mỗi khi sửa code)
+
+Mỗi khi anh sửa code xong và muốn đẩy lên web mới:
+
+### Bước 1: Build & Đẩy Code (Tại máy cá nhân)
+Chạy lệnh này tại thư mục code trên máy tính của anh:
+
 ```bash
-git add .
-git commit -m "Mô tả những gì đã sửa"
-git push origin main
-```
+# 1. Build bản nén
+docker build -t dndkhoa3012/recruitment-app:latest . --platform linux/amd64
 
-## 2. Tại Server (VPS)
-Đăng nhập vào Server:
+# 2. Đẩy lên mạng
+docker push dndkhoa3012/recruitment-app:latest
+```
+*(Lưu ý: `--platform linux/amd64` là bắt buộc để code chạy được trên VPS Linux).*
+
+### Bước 2: Tải & Chạy (Tại VPS)
+SSH vào VPS và chạy lệnh này:
+
 ```bash
 ssh root@103.159.50.249
-cd recruitment
+
+# Vào thư mục web
+cd /var/www/recruitment-system/recruitment
+
+# Tải bản mới về & Chạy lại
+docker compose pull
+docker compose up -d
 ```
+**(Thế là xong! Web sẽ tự động cập nhật trong tích tắc).**
 
-## 3. Cập Nhật & Khởi Động Lại
-Chạy **duy nhất** 2 lệnh này để lấy code mới và chạy lại (Web sẽ tự động Build lại):
-``cd /var/www/recruitment``
+---
+
+## 3. Cứu Hộ Khi VPS Bị Tắt (Lỗi 502)
+
+Nếu lỡ tay làm sập VPS hoặc hết RAM khiến các web khác (`app.phuquoctrip.com`, `hr`, `fnb`...) bị tắt (lỗi 502), hãy làm theo các bước sau để bật lại:
+
+### Cách 1: Hồi sinh tự động (Dùng PM2)
 ```bash
-# 1. Lấy code mới nhất từ GitHub
-git pull origin main
-
-# 2. Build lại và khởi động (Chỉ tốn vài phút)
-docker compose up -d --build
+pm2 resurrect
 ```
-*(Lệnh này sẽ tự động chạy `npm install` và `prisma migrate` nếu cần)*
+*(Lệnh này sẽ bật lại tất cả các web chạy bằng Node.js như HR, Bar, VPS Proxy...)*.
 
-### Nếu gặp lỗi "npm error code ECONNRESET"
-Đây là lỗi mạng khi tải dependencies. Dockerfile đã được cấu hình để tự động retry, nhưng nếu vẫn lỗi:
+### Cách 2: Bật thủ công (Nếu cách 1 không được)
+Chạy lần lượt các lệnh sau:
 
-**Giải pháp 1:** Chạy lại lệnh build (thường sẽ thành công lần 2-3)
 ```bash
-docker compose up -d --build
-```
+# 1. Bật Proxy tổng (Quan trọng nhất)
+cd /var/www/vps && pm2 start package.json --name vps
 
-**Giải pháp 2:** Xóa cache Docker và build lại từ đầu
-```bash
-docker system prune -a
-docker compose up -d --build
+# 2. Bật Web chính
+cd /var/www/app.phuquoctrip.com && pm2 start package.json --name app.phuquoctrip.com
+
+# 3. Bật FNB & HR
+cd /var/www/fnb && pm2 start package.json --name fnb
+cd /var/www/hr && pm2 start package.json --name hr
+
+# 4. Bật Backend Bar
+cd /var/www/jt-bar-backend && pm2 start dist/src/main.js --name jt-bar-backend
 ```
 
 ---
 **Lưu ý:**
-- Anh **KHÔNG** cần chỉnh sửa Nginx nữa (trừ khi đổi tên miền).
-- Anh **KHÔNG** cần chỉnh sửa Database (Docker sẽ tự chạy migration nếu có).
-- Web sẽ bị gián đoạn khoảng 30s - 1 phút trong lúc khởi động lại.
-
-# 1. tắt next dev
-kill $(lsof -t -i:3000)
-# 2. chạy next dev
-npm run dev 
-# 3. chạy prisma studio
-npx prisma studio
-# 4. chạy prisma migrate
-npx prisma migrate dev --name init
-# 5. chạy prisma generate
-npx prisma generate
-
-# 6. chạy prisma db push
-npx prisma db push
-
-# 7. Tắt server
-docker compose down
-
-# 8. Chạy lại server
-docker compose up -d --build
-
-ssh -t root@103.159.50.249 "cd /var/www/recruitment && docker compose exec db mysql -u recruitment -pRecruitPass2024 recruitment_db -e \"INSERT INTO User (id, username, password, role, createdAt, updatedAt) VALUES (UUID(), 'admin', 'admin123', 'admin', NOW(), NOW());\" && echo '✅ Created Admin User'"
-
-# 9. Tắt server
-docker compose down
-
-# 10. Chạy lại server
-docker compose up -d --build
-
-ssh root@103.159.50.249 "cd /var/www/recruitment && docker compose down --remove-orphans && docker compose up -d && echo '✅ All services restarted'"
+-   Web Tuyển Dụng (`Recruitment`) chạy bằng **Docker**.
+-   Các web cũ (`HR`, `FNB`, `Bar`...) chạy bằng **PM2**.
+-   Hai hệ thống này chạy song song, không ảnh hưởng nhau nếu làm đúng quy trình trên.

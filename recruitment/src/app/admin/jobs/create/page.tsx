@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Form, Input, Select, DatePicker, Button, App, Alert, InputNumber } from "antd"
+import { Form, Input, Select, DatePicker, Button, App, Alert, InputNumber, Modal } from "antd"
 import { useRouter } from "next/navigation"
 import { ArrowLeftOutlined } from "@ant-design/icons"
 import Link from "next/link"
@@ -25,7 +25,7 @@ export default function CreateJobPage() {
                     <div>
                         Bạn cần tạo danh mục trước khi tạo việc làm.
                         <div className="mt-2 text-right">
-                            <Link href="/admin/categories/create" className="text-blue-600 hover:underline" onClick={() => modal.destroyAll()}>
+                            <Link href="/admin/categories/create" className="text-blue-600 hover:underline" onClick={() => Modal.destroyAll()}>
                                 Tạo danh mục ngay
                             </Link>
                         </div>
