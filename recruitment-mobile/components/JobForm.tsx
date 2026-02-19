@@ -296,14 +296,20 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
             // Benefits -> [{ text: ..., icon: '' }]  (let view handle icon mapping)
             const benefitsJSON = JSON.stringify(cleanBenefits.map(text => ({ text, icon: '' })));
 
-            await onSubmit({
-                ...formData,
+            // Sanitize payload for Prisma
+            const { category: _categoryName, categoryId, ...otherFields } = formData;
+
+            const payload = {
+                ...otherFields,
+                categoryId: categoryId ? Number(categoryId) : null,
                 quantity: parseInt(formData.quantity) || 1,
                 deadline: formData.deadline.toISOString(),
                 description: descriptionJSON,
                 requirements: requirementsJSON,
                 benefits: benefitsJSON,
-            });
+            };
+
+            await onSubmit(payload);
         } catch (error) {
             Alert.alert('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.');
         } finally {
@@ -339,7 +345,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                             </TouchableOpacity>
                         </View>
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Số lượng</Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700">Số lượng tuyển</Text>
                             <TextInput
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white text-base"
                                 value={formData.quantity}

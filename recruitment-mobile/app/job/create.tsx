@@ -29,9 +29,17 @@ export default function CreateJobScreen() {
     };
 
     return (
-        <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-            <Stack.Screen options={{ headerShown: false }} />
-            <ScreenHeader title="Tạo việc làm mới" showBack={true} />
+        <View className="flex-1 bg-white">
+            <Stack.Screen options={{
+                headerShown: true,
+                header: () => (
+                    <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
+                        <ScreenHeader title="Tạo việc làm mới" showBack={true} centerTitle={true} />
+                    </View>
+                ),
+            }} />
+
+            {/* Native Header handles safe area and back button logic */}
             <JobForm onSubmit={handleCreate} submitLabel="Tạo mới" onCancel={() => router.back()} />
         </View >
     );

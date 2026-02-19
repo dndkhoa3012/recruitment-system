@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
@@ -17,7 +17,10 @@ export function ScreenHeader({ title, icon, showBack = false, onSearch, centerTi
 
     if (centerTitle) {
         return (
-            <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-50 h-[60px]">
+            <View
+                className="flex-row items-center justify-between px-4 py-2 bg-white min-h-[44px]"
+                style={{ borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(60, 60, 67, 0.1)' }}
+            >
                 <View className="flex-row items-center z-10">
                     {showBack && (
                         <TouchableOpacity onPress={() => router.back()} className="mr-1">
@@ -50,7 +53,10 @@ export function ScreenHeader({ title, icon, showBack = false, onSearch, centerTi
     }
 
     return (
-        <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-50">
+        <View
+            className="flex-row items-center justify-between px-4 py-2 bg-white"
+            style={{ borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(60, 60, 67, 0.1)' }}
+        >
             <View className="flex-row items-center gap-3">
                 {showBack && (
                     <TouchableOpacity onPress={() => router.back()} className="mr-1">

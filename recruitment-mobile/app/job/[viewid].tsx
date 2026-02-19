@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
-import { getJobDetail } from '../../services/api';
+import { getJobDetail, getCandidates } from '../../services/api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
@@ -11,6 +11,7 @@ import { Colors } from '@/constants/theme';
 export default function JobDetailScreen() {
     const { viewid } = useLocalSearchParams();
     const [job, setJob] = useState<any>(null);
+    const [candidateCount, setCandidateCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const insets = useSafeAreaInsets();
@@ -18,8 +19,14 @@ export default function JobDetailScreen() {
 
     useEffect(() => {
         if (viewid) {
-            getJobDetail(viewid as string)
-                .then(data => setJob(data))
+            Promise.all([
+                getJobDetail(viewid as string),
+                getCandidates({ jobId: viewid as string })
+            ])
+                .then(([jobData, candidatesData]) => {
+                    setJob(jobData);
+                    setCandidateCount(candidatesData.length);
+                })
                 .catch(err => console.error(err))
                 .finally(() => setLoading(false));
         }
@@ -201,45 +208,71 @@ export default function JobDetailScreen() {
     return (
         <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
             <Stack.Screen options={{ headerShown: false }} />
-            <ScreenHeader title={job.title} showBack={true} />
+            <ScreenHeader title={job.title} showBack={true} centerTitle={true} />
 
             <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
-                <View className="mb-6">
-                    <View className="flex-row flex-wrap gap-2 mb-4">
-                        <View className="bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                            <Text className="text-blue-700 text-xs font-semibold">{t(`job_type.${job.type}`, { defaultValue: job.type })}</Text>
-                        </View>
-                        <View className="bg-green-50 px-3 py-1 rounded-full border border-green-100">
-                            <Text className="text-green-700 text-xs font-semibold">{job.location}</Text>
-                        </View>
-                        {job.category && (
-                            <View className="bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
-                                <Text className="text-purple-700 text-xs font-semibold">{job.category?.name || job.category}</Text>
-                            </View>
-                        )}
-                        {job.quantity && (
-                            <View className="bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-                                <Text className="text-gray-600 text-xs font-semibold">Số lượng: {job.quantity}</Text>
-                            </View>
-                        )}
+                <View className="mb-6 border-b border-gray-100 pb-4 space-y-3">
+                    {/* Status */}
+                    <View className="flex-row items-center">
+                        <MaterialIcons
+                            name={job.status === 'active' ? 'check-circle' : 'cancel'}
+                            size={20}
+                            color={job.status === 'active' ? '#15803d' : '#6b7280'}
+                        />
+                        <Text className={`ml-2 text-base font-bold ${job.status === 'active' ? 'text-green-700' : 'text-gray-500'}`}>
+                            {job.status === 'active' ? 'Đang tuyển' : 'Đã đóng'}
+                        </Text>
                     </View>
 
-                    <View className="flex-row gap-6 mb-4">
+                    {/* Location */}
+                    <View className="flex-row items-start">
+                        <MaterialIcons name="place" size={20} color={Colors.light.tint} style={{ marginTop: 2 }} />
+                        <Text className="text-gray-900 ml-2 text-base flex-1">{job.location}</Text>
+                    </View>
+
+                    {/* Job Type */}
+                    <View className="flex-row items-center">
+                        <MaterialIcons name="work" size={20} color={Colors.light.tint} />
+                        <Text className="text-gray-900 ml-2 text-base">{t(`job_type.${job.type}`, { defaultValue: job.type })}</Text>
+                    </View>
+
+                    {/* Quantity */}
+                    {job.quantity && (
                         <View className="flex-row items-center">
-                            <MaterialIcons name="attach-money" size={20} color={Colors.light.tint} />
-                            <Text className="text-gray-700 ml-1 font-medium">{job.salary || 'Thỏa thuận'}</Text>
+                            <MaterialIcons name="confirmation-number" size={20} color={Colors.light.tint} />
+                            <Text className="text-gray-900 ml-2 text-base">Số lượng: {job.quantity}</Text>
                         </View>
-                        {job.deadline && (
-                            <View className="flex-row items-center">
-                                <MaterialIcons name="event" size={20} color={Colors.light.tint} />
-                                <Text className="text-gray-700 ml-1 font-medium">Hạn nộp: {new Date(job.deadline).toLocaleDateString()}</Text>
-                            </View>
-                        )}
+                    )}
+
+                    {/* Salary */}
+                    <View className="flex-row items-center">
+                        <MaterialIcons name="attach-money" size={20} color={Colors.light.tint} />
+                        <Text className="text-gray-900 ml-2 text-base font-bold">{job.salary || 'Thỏa thuận'}</Text>
                     </View>
 
-                    <Text className="text-gray-500 text-sm">
-                        Đăng ngày: {new Date(job.createdAt).toLocaleDateString()}
-                    </Text>
+                    {/* Deadline */}
+                    {job.deadline && (
+                        <View className="flex-row items-center">
+                            <MaterialIcons name="calendar-today" size={20} color={Colors.light.tint} />
+                            <Text className="text-gray-900 ml-2 text-base">Hạn nộp: {new Date(job.deadline).toLocaleDateString()}</Text>
+                        </View>
+                    )}
+
+                    {/* Candidates */}
+                    <View className="flex-row items-center">
+                        <MaterialIcons name="people" size={20} color={Colors.light.tint} />
+                        <Text className="text-blue-600 ml-2 text-base font-medium">
+                            Ứng viên: {candidateCount} hồ sơ
+                        </Text>
+                    </View>
+
+                    {/* Created Date */}
+                    <View className="flex-row items-center">
+                        <MaterialIcons name="access-time" size={20} color="#9ca3af" />
+                        <Text className="text-gray-400 ml-2 text-sm">
+                            Đăng ngày: {new Date(job.createdAt).toLocaleDateString()}
+                        </Text>
+                    </View>
                 </View>
 
                 <View className="space-y-6 pb-10">

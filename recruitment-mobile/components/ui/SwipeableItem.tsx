@@ -1,11 +1,11 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 interface SwipeableItemProps {
     children: React.ReactNode;
-    onEdit: () => void;
+    onEdit?: () => void;
     onDelete: () => void;
     containerStyle?: any;
     onSwipeableOpen?: () => void;
@@ -22,18 +22,23 @@ export const SwipeableItem = forwardRef(({ children, onEdit, onDelete, container
 
     const renderRightActions = (progress: any, dragX: any) => {
         return (
-            <View className="flex-row items-center pl-2 h-full">
+            <View
+                className="flex-row items-center pl-2 h-full"
+                style={{ width: onEdit ? 168 : 88 }}
+            >
+                {onEdit && (
+                    <TouchableOpacity
+                        className="bg-blue-500 justify-center items-center w-20 h-full rounded-l-none"
+                        onPress={() => {
+                            swipeableRef.current?.close();
+                            onEdit();
+                        }}
+                    >
+                        <MaterialIcons name="edit" size={24} color="white" />
+                    </TouchableOpacity>
+                )}
                 <TouchableOpacity
-                    className="bg-blue-500 justify-center items-center w-20 h-full rounded-l-none"
-                    onPress={() => {
-                        swipeableRef.current?.close();
-                        onEdit();
-                    }}
-                >
-                    <MaterialIcons name="edit" size={24} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    className="bg-red-500 justify-center items-center w-20 h-full rounded-r-xl"
+                    className={`bg-red-500 justify-center items-center w-20 h-full ${onEdit ? 'rounded-r-xl' : 'rounded-xl'}`}
                     onPress={() => {
                         swipeableRef.current?.close();
                         onDelete();
@@ -58,3 +63,5 @@ export const SwipeableItem = forwardRef(({ children, onEdit, onDelete, container
         </Swipeable>
     );
 });
+
+SwipeableItem.displayName = 'SwipeableItem';

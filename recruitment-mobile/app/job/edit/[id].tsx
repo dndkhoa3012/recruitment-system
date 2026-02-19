@@ -37,13 +37,20 @@ export default function EditJobScreen() {
 
     const handleUpdate = async (values: any) => {
         try {
+            console.log('Updating job with values:', JSON.stringify(values, null, 2));
             await updateJob(id as string, values);
             Alert.alert('Thành công', 'Cập nhật việc làm thành công!', [
                 { text: 'OK', onPress: () => router.back() }
             ]);
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Lỗi', 'Không thể cập nhật việc làm.');
+        } catch (error: any) {
+            console.error('Update Job Error:', error);
+            if (error.response) {
+                console.error('Error Data:', error.response.data);
+                console.error('Error Status:', error.response.status);
+                Alert.alert('Lỗi', `Không thể cập nhật việc làm.\n${JSON.stringify(error.response.data)}`);
+            } else {
+                Alert.alert('Lỗi', `Không thể cập nhật việc làm.\n${error.message}`);
+            }
         }
     };
 
@@ -57,9 +64,15 @@ export default function EditJobScreen() {
     }
 
     return (
-        <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
-            <Stack.Screen options={{ headerShown: false }} />
-            <ScreenHeader title="Chỉnh sửa việc làm" showBack={true} />
+        <View className="flex-1 bg-white">
+            <Stack.Screen options={{
+                headerShown: true,
+                header: () => (
+                    <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
+                        <ScreenHeader title="Chỉnh sửa việc làm" showBack={true} centerTitle={true} />
+                    </View>
+                ),
+            }} />
             {
                 job && (
                     <JobForm

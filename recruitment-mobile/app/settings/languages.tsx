@@ -47,12 +47,15 @@ export default function LanguagesScreen() {
     };
 
     return (
-        <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
+        <View className="flex-1 bg-gray-50">
             <Stack.Screen options={{ headerShown: false }} />
-            <ScreenHeader
-                title={t('settings.language') || "Ngôn ngữ"}
-                showBack={true}
-            />
+            <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
+                <ScreenHeader
+                    title={t('settings.language') || "Ngôn ngữ"}
+                    showBack={true}
+                    centerTitle={true}
+                />
+            </View>
             <View className="mt-4 bg-white border-y border-gray-200">
                 <FlatList
                     data={LANGUAGES}

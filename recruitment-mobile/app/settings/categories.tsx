@@ -125,18 +125,19 @@ export default function CategoriesScreen() {
     };
 
     const renderItem = ({ item }: { item: any }) => (
-        <SwipeableItem
-            onEdit={() => openModal(item)}
-            onDelete={() => handleDelete(item.id)}
-            containerStyle={{ marginBottom: 16 }}
-        >
-            <View className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex-row items-center gap-4">
-                <View className="flex-1">
-                    <Text className="text-lg font-bold text-gray-900">{item.name}</Text>
-                    <Text className="text-sm text-gray-500">{jobCounts[item.id] || 0} việc làm</Text>
+        <View className="mx-4 mb-4">
+            <SwipeableItem
+                onEdit={() => openModal(item)}
+                onDelete={() => handleDelete(item.id)}
+            >
+                <View className="bg-white p-4 rounded-xl border border-gray-100 flex-row items-center gap-4">
+                    <View className="flex-1">
+                        <Text className="text-lg font-bold text-gray-900">{item.name}</Text>
+                        <Text className="text-sm text-gray-500">{jobCounts[item.id] || 0} việc làm</Text>
+                    </View>
                 </View>
-            </View>
-        </SwipeableItem>
+            </SwipeableItem>
+        </View>
     );
 
     const renderHeader = () => (
@@ -152,13 +153,16 @@ export default function CategoriesScreen() {
     );
 
     return (
-        <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
+        <View className="flex-1 bg-gray-50">
             <Stack.Screen options={{ headerShown: false }} />
 
-            <ScreenHeader
-                title="Danh mục công việc"
-                showBack={true}
-            />
+            <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
+                <ScreenHeader
+                    title="Danh mục công việc"
+                    showBack={true}
+                    centerTitle={true}
+                />
+            </View>
 
             {loading ? (
                 <View className="flex-1 justify-center items-center">

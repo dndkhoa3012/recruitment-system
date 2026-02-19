@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, RefreshControl, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { useRouter, Stack } from 'expo-router';
-import { getJobs, deleteJob } from '@/services/api';
+import { useRouter, Stack, useFocusEffect } from 'expo-router';
+import { getJobs, deleteJob, getCandidates } from '@/services/api';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
-import { ScreenHeader } from '@/components/ui/ScreenHeader';
+
 import { SwipeableItem } from '@/components/ui/SwipeableItem';
 
 export default function JobsScreen() {
@@ -21,8 +21,19 @@ export default function JobsScreen() {
 
     const fetchJobs = async () => {
         try {
-            const data = await getJobs();
-            setJobs(data);
+            const jobsData = await getJobs();
+            // Fetch candidate counts for each job
+            // Note: In a real app, this should be included in the getJobs API response to avoid N+1 queries
+            const jobsWithCounts = await Promise.all(jobsData.map(async (job: any) => {
+                try {
+                    const candidates = await getCandidates({ jobId: job.id });
+                    return { ...job, candidateCount: candidates.length };
+                } catch (e) {
+                    console.warn(`Failed to fetch candidates for job ${job.id}`, e);
+                    return { ...job, candidateCount: 0 };
+                }
+            }));
+            setJobs(jobsWithCounts);
         } catch (error) {
             console.error(error);
         } finally {
@@ -31,9 +42,11 @@ export default function JobsScreen() {
         }
     };
 
-    useEffect(() => {
-        fetchJobs();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchJobs();
+        }, [])
+    );
 
     const filteredJobs = React.useMemo(() => {
         if (filterStatus === 'all') return jobs;
@@ -104,7 +117,7 @@ export default function JobsScreen() {
                 onSwipeableOpen={() => onRowOpened(item.id.toString())}
             >
                 <TouchableOpacity
-                    className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"
+                    className="bg-white p-4 rounded-xl border border-gray-100 relative"
                     onPress={() => {
                         closeAnyOpenRow();
                         router.push(`/job/${item.id}`);
@@ -113,30 +126,42 @@ export default function JobsScreen() {
                     delayPressIn={100}
                 >
                     <View className="flex-row justify-between items-start mb-3">
-                        <View>
-                            <Text className="text-lg font-bold text-gray-900">{item.title}</Text>
+                        <View className="flex-1 mr-2">
+                            <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>{item.title}</Text>
                         </View>
-                        <View className="bg-green-100 px-3 py-1 rounded-full">
-                            <Text className="text-xs font-bold text-green-700">Đang tuyển</Text>
+                        <View className={`px-3 py-1 rounded-full ${item.status === 'active' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                            <Text className={`text-xs font-bold ${item.status === 'active' ? 'text-green-700' : 'text-gray-700'}`}>
+                                {item.status === 'active' ? 'Đang tuyển' : 'Đã đóng'}
+                            </Text>
                         </View>
                     </View>
 
-                    <View className="flex-row flex-wrap">
-                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
-                            <MaterialIcons name="corporate-fare" size={16} color="#64748b" />
-                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.category?.name || 'Nhân sự'}</Text>
+                    <View className="flex-row">
+                        <View className="flex-1 flex-row flex-wrap">
+                            <View className="w-full flex-row items-center mb-2 pr-2">
+                                <MaterialIcons name="corporate-fare" size={16} color="#64748b" />
+                                <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.category?.name || 'Nhân sự'}</Text>
+                            </View>
+                            <View className="w-full flex-row items-center mb-2 pr-2">
+                                <MaterialIcons name="location-on" size={16} color="#64748b" />
+                                <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.location}</Text>
+                            </View>
+                            <View className="w-full flex-row items-center mb-2 pr-2">
+                                <MaterialIcons name="schedule" size={16} color="#64748b" />
+                                <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{t(`job_type.${item.type}`, { defaultValue: item.type })}</Text>
+                            </View>
+                            <View className="w-full flex-row items-center mb-2 pr-2">
+                                <MaterialIcons name="payments" size={16} color="#64748b" />
+                                <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.salary || 'Thỏa thuận'}</Text>
+                            </View>
                         </View>
-                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
-                            <MaterialIcons name="location-on" size={16} color="#64748b" />
-                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.location}</Text>
-                        </View>
-                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
-                            <MaterialIcons name="schedule" size={16} color="#64748b" />
-                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{t(`job_type.${item.type}`, { defaultValue: item.type })}</Text>
-                        </View>
-                        <View className="w-1/2 flex-row items-center mb-2 pr-2">
-                            <MaterialIcons name="payments" size={16} color="#64748b" />
-                            <Text className="text-sm text-gray-500 ml-2" numberOfLines={1}>{item.salary || 'Thỏa thuận'}</Text>
+
+                        {/* Candidate Count Badge (Right Side) */}
+                        <View className="justify-end items-end pb-2 pl-2">
+                            <View className="bg-blue-50 px-3 py-2 rounded-lg items-center justify-center border border-blue-100">
+                                <MaterialIcons name="description" size={24} color="#3b82f6" />
+                                <Text className="text-blue-700 font-bold text-sm mt-1">{item.candidateCount || 0}</Text>
+                            </View>
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -189,15 +214,10 @@ export default function JobsScreen() {
     );
 
     return (
-        <View className="flex-1 bg-gray-50" style={{ paddingTop: insets.top }}>
-            <Stack.Screen options={{ headerShown: false }} />
+        <View className="flex-1 bg-gray-50">
+            {/* <Stack.Screen options={{ headerShown: false }} /> removed to use native header */}
 
-            <View onStartShouldSetResponder={() => true} onResponderRelease={closeAnyOpenRow}>
-                <ScreenHeader
-                    title="Quản lý Việc làm"
-                    centerTitle
-                />
-            </View>
+            {/* Custom header removed to match Overview page style */}
 
             {loading ? (
                 <View className="flex-1 justify-center items-center">

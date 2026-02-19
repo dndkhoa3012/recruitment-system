@@ -113,4 +113,45 @@ export const deleteCategory = async (id: number | string) => {
     }
 };
 
+// Candidate APIs
+export const getCandidates = async (params?: { status?: string; jobId?: string; search?: string }) => {
+    try {
+        const response = await api.get('/candidates', { params });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching candidates:', error);
+        throw error;
+    }
+};
+
+export const getCandidateDetail = async (id: number | string) => {
+    try {
+        const response = await api.get(`/candidates/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching candidate ${id}:`, error);
+        throw error;
+    }
+};
+
+export const updateCandidate = async (id: number | string, data: any) => {
+    try {
+        const response = await api.put(`/candidates/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating candidate ${id}:`, error);
+        throw error;
+    }
+};
+
+export const deleteCandidate = async (id: number | string) => {
+    try {
+        const response = await api.delete(`/candidates/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting candidate ${id}:`, error);
+        throw error;
+    }
+};
+
 export default api;

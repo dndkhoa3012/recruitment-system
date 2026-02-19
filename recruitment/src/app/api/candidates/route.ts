@@ -82,7 +82,7 @@ export async function POST(request: Request) {
                 phone,
                 resume,
                 coverLetter,
-                jobId,
+                jobId: Number(jobId),
                 status: status || 'pending'
             }
         })
