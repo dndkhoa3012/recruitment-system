@@ -8,6 +8,16 @@ const api = axios.create({
     },
 });
 
+export const apiLogin = async (username: string, pass: string) => {
+    try {
+        const response = await api.post('/auth/login', { username, password: pass });
+        return response.data;
+    } catch (error) {
+        console.error('Error logging in:', error);
+        throw error;
+    }
+};
+
 export const getJobs = async () => {
     try {
         const response = await api.get('/jobs');

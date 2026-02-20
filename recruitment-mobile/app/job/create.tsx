@@ -1,14 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Alert } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import JobForm from '@/components/JobForm';
 import { createJob } from '@/services/api';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CreateJobScreen() {
@@ -19,12 +16,12 @@ export default function CreateJobScreen() {
     const handleCreate = async (values: any) => {
         try {
             await createJob(values);
-            Alert.alert('Thành công', 'Đã tạo việc làm mới thành công!', [
+            Alert.alert(t('job_form.create_success_title'), t('job_form.create_success_message'), [
                 { text: 'OK', onPress: () => router.back() }
             ]);
         } catch (error) {
             console.error(error);
-            Alert.alert('Lỗi', 'Không thể tạo việc làm. Vui lòng thử lại.');
+            Alert.alert(t('job_form.create_error_title'), t('job_form.create_error_message'));
         }
     };
 
@@ -34,13 +31,11 @@ export default function CreateJobScreen() {
                 headerShown: true,
                 header: () => (
                     <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
-                        <ScreenHeader title="Tạo việc làm mới" showBack={true} centerTitle={true} />
+                        <ScreenHeader title={t('job_form.create_title')} showBack={true} centerTitle={true} />
                     </View>
                 ),
             }} />
-
-            {/* Native Header handles safe area and back button logic */}
-            <JobForm onSubmit={handleCreate} submitLabel="Tạo mới" onCancel={() => router.back()} />
-        </View >
+            <JobForm onSubmit={handleCreate} submitLabel={t('job_form.submit_create')} onCancel={() => router.back()} />
+        </View>
     );
 }

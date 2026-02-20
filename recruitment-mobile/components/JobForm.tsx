@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Platform, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Modal, Platform, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { BlurView } from 'expo-blur';
 import { getCategories } from '@/services/api';
-import { NestableScrollContainer, NestableDraggableFlatList, ScaleDecorator } from 'react-native-draggable-flatlist';
+import { useTranslation } from 'react-i18next';
 
 interface JobFormProps {
     initialValues?: any;
@@ -32,12 +31,11 @@ interface DynamicInputListProps {
     data: string[];
     onChange: (newData: string[]) => void;
     placeholder: string;
+    addLabel: string;
 }
 
-const DynamicInputList: React.FC<DynamicInputListProps> = ({ label, data, onChange, placeholder }) => {
-    const handleAdd = () => {
-        onChange([...data, '']);
-    };
+const DynamicInputList: React.FC<DynamicInputListProps> = ({ label, data, onChange, placeholder, addLabel }) => {
+    const handleAdd = () => onChange([...data, '']);
 
     const handleRemove = (index: number) => {
         const newData = [...data];
@@ -51,48 +49,70 @@ const DynamicInputList: React.FC<DynamicInputListProps> = ({ label, data, onChan
         onChange(newData);
     };
 
-    const renderItem = ({ item, index, drag, isActive }: any) => {
-        return (
-            <ScaleDecorator>
-                <View className={`flex-row items-center mb-2 ${isActive ? "bg-orange-50 rounded-xl" : ""}`}>
-                    <TouchableOpacity onLongPress={drag} className="mr-2 p-2">
-                        <MaterialIcons name="drag-indicator" size={24} color={isActive ? "#f97316" : "#9ca3af"} />
-                    </TouchableOpacity>
+    const moveUp = (index: number) => {
+        if (index === 0) return;
+        const newData = [...data];
+        [newData[index - 1], newData[index]] = [newData[index], newData[index - 1]];
+        onChange(newData);
+    };
+
+    const moveDown = (index: number) => {
+        if (index === data.length - 1) return;
+        const newData = [...data];
+        [newData[index], newData[index + 1]] = [newData[index + 1], newData[index]];
+        onChange(newData);
+    };
+
+    return (
+        <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', marginBottom: 8, color: '#374151', marginLeft: 4 }}>{label}</Text>
+            {data.map((item, index) => (
+                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+                    {/* Up/Down buttons */}
+                    <View style={{ marginRight: 6, gap: 2 }}>
+                        <TouchableOpacity
+                            onPress={() => moveUp(index)}
+                            disabled={index === 0}
+                            style={{ padding: 4, opacity: index === 0 ? 0.25 : 1 }}
+                        >
+                            <MaterialIcons name="keyboard-arrow-up" size={20} color="#6b7280" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => moveDown(index)}
+                            disabled={index === data.length - 1}
+                            style={{ padding: 4, opacity: index === data.length - 1 ? 0.25 : 1 }}
+                        >
+                            <MaterialIcons name="keyboard-arrow-down" size={20} color="#6b7280" />
+                        </TouchableOpacity>
+                    </View>
+                    {/* Text input */}
                     <TextInput
-                        className="flex-1 min-h-[48px] px-4 py-3 rounded-xl border border-gray-200 bg-white text-base"
+                        style={{ flex: 1, minHeight: 48, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', backgroundColor: '#fff', fontSize: 15 }}
                         value={item}
                         onChangeText={(text) => handleChangeText(text, index)}
                         placeholder={placeholder}
                         multiline={true}
-                        textAlignVertical="center"
+                        textAlignVertical="top"
                     />
-                    <TouchableOpacity onPress={() => handleRemove(index)} className="ml-2 p-2">
-                        <MaterialIcons name="delete-outline" size={24} color="#ef4444" />
+                    {/* Delete button */}
+                    <TouchableOpacity onPress={() => handleRemove(index)} style={{ marginLeft: 8, padding: 8 }}>
+                        <MaterialIcons name="delete-outline" size={22} color="#ef4444" />
                     </TouchableOpacity>
                 </View>
-            </ScaleDecorator>
-        );
-    };
-
-    return (
-        <View className="mb-4">
-            <Text className="text-sm font-semibold mb-2 text-gray-700">{label}</Text>
-            <NestableDraggableFlatList
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => `item-${index}`}
-                onDragEnd={({ data }) => onChange(data)}
-                scrollEnabled={false} // Provide scrollEnabled false for better nested behavior
-            />
-            <TouchableOpacity onPress={handleAdd} className="flex-row items-center justify-center py-3 border border-dashed border-gray-300 rounded-xl mt-2 bg-gray-50">
+            ))}
+            <TouchableOpacity
+                onPress={handleAdd}
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderWidth: 1, borderStyle: 'dashed', borderColor: '#d1d5db', borderRadius: 12, marginTop: 4, backgroundColor: '#f9fafb' }}
+            >
                 <MaterialIcons name="add" size={20} color="#4b5563" />
-                <Text className="ml-1 text-gray-600 font-medium">Thêm dòng</Text>
+                <Text style={{ marginLeft: 4, color: '#4b5563', fontWeight: '500' }}>{addLabel}</Text>
             </TouchableOpacity>
         </View>
     );
 };
 
 export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel }: JobFormProps) {
+    const { t } = useTranslation();
     const [submitting, setSubmitting] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -153,6 +173,11 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                 } catch (e) { }
             }
 
+            // Auto-close if deadline has passed
+            const effectiveStatus = (initialValues.status === 'active' && formattedDeadline < new Date())
+                ? 'closed'
+                : (initialValues.status || 'active');
+
             setFormData({
                 title: safeString(initialValues.title),
                 category: initialValues.category?.name || '', // Extract name if object
@@ -162,7 +187,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                 type: initialValues.type || 'full-time',
                 salary: safeString(initialValues.salary),
                 deadline: formattedDeadline,
-                status: initialValues.status || 'active',
+                status: effectiveStatus,
             });
 
             // Parse Description
@@ -248,19 +273,6 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
         setShowCategoryModal(false);
     };
 
-    // ... (date handlers) ...
-    const handleDateChange = (event: any, selectedDate?: Date) => {
-        if (Platform.OS === 'android') {
-            setShowDatePicker(false);
-        }
-        if (selectedDate) {
-            setFormData(prev => ({ ...prev, deadline: selectedDate }));
-        }
-    };
-
-    const confirmIOSDate = () => {
-        setShowDatePicker(false);
-    };
 
     const formatDate = (date: Date) => {
         const day = date.getDate().toString().padStart(2, '0');
@@ -270,14 +282,17 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
     };
 
     const handleSubmit = async () => {
-        if (!formData.title || !formData.location) {
-            Alert.alert('Lỗi', 'Vui lòng điền các trường bắt buộc (Tiêu đề, Địa điểm)');
-            return;
+        if (!formData.title.trim()) {
+            Alert.alert(t('common.error'), t('job_form.title_required'));
+            return false;
         }
-
-        if (!formData.categoryId) {
-            Alert.alert('Lỗi', 'Vui lòng chọn danh mục công việc');
-            return;
+        if (!formData.category) {
+            Alert.alert(t('common.error'), t('job_form.category_required'));
+            return false;
+        }
+        if (!formData.location.trim()) {
+            Alert.alert(t('common.error'), t('job_form.location_required'));
+            return false;
         }
 
         setSubmitting(true);
@@ -311,7 +326,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
 
             await onSubmit(payload);
         } catch (error) {
-            Alert.alert('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.');
+            Alert.alert(t('common.error'), t('common.error'));
         } finally {
             setSubmitting(false);
         }
@@ -319,33 +334,33 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
 
     return (
         <View className="flex-1 bg-gray-50">
-            <NestableScrollContainer className="flex-1 px-4 py-6" contentContainerStyle={{ paddingBottom: 100 }}>
+            <ScrollView className="flex-1 px-4 py-6" contentContainerStyle={{ paddingBottom: 100 }}>
                 {/* Basic Info */}
                 <View className="space-y-4 mb-6">
                     <View>
-                        <Text className="text-sm font-semibold mb-2 text-gray-700">Tiêu đề công việc <Text className="text-red-500">*</Text></Text>
+                        <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.title_label')} <Text className="text-red-500">*</Text></Text>
                         <TextInput
                             className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white text-base"
-                            placeholder="Nhập tiêu đề"
+                            placeholder={t('job_form.title_placeholder')}
                             value={formData.title}
                             onChangeText={(text) => handleChange('title', text)}
                         />
                     </View>
 
-                    <View className="flex-row gap-4">
+                    <View className="flex-row gap-4 mt-2">
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Danh mục <Text className="text-red-500">*</Text></Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.category_label')} <Text className="text-red-500">*</Text></Text>
                             <TouchableOpacity
                                 onPress={() => setShowCategoryModal(true)}
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white justify-center"
                             >
                                 <Text className={`text-base ${formData.category ? 'text-gray-900' : 'text-gray-400'}`}>
-                                    {formData.category || 'Chọn danh mục'}
+                                    {formData.category || t('job_form.select_category')}
                                 </Text>
                             </TouchableOpacity>
                         </View>
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Số lượng tuyển</Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.quantity_label')}</Text>
                             <TextInput
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white text-base"
                                 value={formData.quantity}
@@ -355,14 +370,14 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                         </View>
                     </View>
 
-                    <View>
-                        <Text className="text-sm font-semibold mb-2 text-gray-700">Địa điểm <Text className="text-red-500">*</Text></Text>
+                    <View className="mt-2">
+                        <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.location_label')} <Text className="text-red-500">*</Text></Text>
                         <View className="relative">
                             <TextInput
                                 className="w-full h-12 pl-4 pr-10 rounded-xl border border-gray-200 bg-white text-base"
                                 value={formData.location}
                                 onChangeText={(text) => handleChange('location', text)}
-                                placeholder="Quận 1, TP. HCM"
+                                placeholder={t('job_form.location_placeholder')}
                             />
                             <MaterialIcons name="location-on" size={20} color={Colors.light.tint} style={{ position: 'absolute', right: 12, top: 14 }} />
                         </View>
@@ -371,32 +386,32 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
 
                 {/* Job Details */}
                 <View className="space-y-4 pt-4 border-t border-gray-200 mb-6">
-                    <View className="flex-row gap-4">
+                    <View className="flex-row gap-4 mt-2">
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Loại hình</Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.type_label')}</Text>
                             <TouchableOpacity
                                 onPress={() => setShowTypeModal(true)}
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white justify-center"
                             >
                                 <Text className="text-base text-gray-900">
-                                    {JOB_TYPES.find(t => t.value === formData.type)?.label || 'Chọn loại hình'}
+                                    {JOB_TYPES.find(jt => jt.value === formData.type)?.label || t('job_form.select_type')}
                                 </Text>
                             </TouchableOpacity>
                         </View>
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Mức lương</Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.salary_label')}</Text>
                             <TextInput
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white text-base"
                                 value={formData.salary}
                                 onChangeText={(text) => handleChange('salary', text)}
-                                placeholder="Thỏa thuận"
+                                placeholder={t('job_form.salary_placeholder')}
                             />
                         </View>
                     </View>
 
-                    <View className="flex-row gap-4">
+                    <View className="flex-row gap-4 mt-2">
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Hạn nộp</Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.deadline_label')}</Text>
                             <TouchableOpacity
                                 onPress={() => setShowDatePicker(true)}
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-white justify-center"
@@ -407,7 +422,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                             </TouchableOpacity>
                         </View>
                         <View className="flex-1">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Trạng thái</Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700 ml-1">{t('job_form.status_label')}</Text>
                             <TouchableOpacity
                                 className={`w-full h-12 px-4 rounded-xl border flex-row items-center justify-between ${formData.status === JOB_STATUS.ACTIVE ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}
                                 onPress={() => handleChange('status', formData.status === JOB_STATUS.ACTIVE ? JOB_STATUS.CLOSED : JOB_STATUS.ACTIVE)}
@@ -419,7 +434,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                                         color={formData.status === JOB_STATUS.ACTIVE ? "#15803d" : "#ca8a04"}
                                     />
                                     <Text className={`font-medium text-sm ${formData.status === JOB_STATUS.ACTIVE ? 'text-green-700' : 'text-yellow-700'}`}>
-                                        {formData.status === JOB_STATUS.ACTIVE ? 'Hoạt động' : 'Tạm dừng'}
+                                        {formData.status === JOB_STATUS.ACTIVE ? t('job_form.status_active') : t('job_form.status_closed')}
                                     </Text>
                                 </View>
                             </TouchableOpacity>
@@ -441,7 +456,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                     >
                         <View className="bg-white w-full max-w-[300px] rounded-2xl overflow-hidden">
                             <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
-                                <Text className="font-bold text-lg text-gray-900">Chọn loại hình</Text>
+                                <Text className="font-bold text-lg text-gray-900">{t('job_form.select_type')}</Text>
                                 <TouchableOpacity onPress={() => setShowTypeModal(false)}>
                                     <MaterialIcons name="close" size={24} color="#9ca3af" />
                                 </TouchableOpacity>
@@ -472,24 +487,27 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                 {/* Description, Requirements, Benefits - Dynamic Lists */}
                 <View className="space-y-6 pt-4 border-t border-gray-200 mb-20">
                     <DynamicInputList
-                        label="Mô tả công việc"
+                        label={t('job_form.description_label')}
                         data={descriptionList}
                         onChange={setDescriptionList}
-                        placeholder="Thêm mô tả công việc..."
+                        placeholder={t('job_form.description_placeholder')}
+                        addLabel={t('job_form.add_row')}
                     />
 
                     <DynamicInputList
-                        label="Yêu cầu"
+                        label={t('job_form.requirements_label')}
                         data={requirementsList}
                         onChange={setRequirementsList}
-                        placeholder="Thêm yêu cầu ứng viên..."
+                        placeholder={t('job_form.requirements_placeholder')}
+                        addLabel={t('job_form.add_row')}
                     />
 
                     <DynamicInputList
-                        label="Quyền lợi"
+                        label={t('job_form.benefits_label')}
                         data={benefitsList}
                         onChange={setBenefitsList}
-                        placeholder="Thêm quyền lợi..."
+                        placeholder={t('job_form.benefits_placeholder')}
+                        addLabel={t('job_form.add_row')}
                     />
                 </View>
 
@@ -507,12 +525,12 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                     >
                         <View className="bg-white w-full max-h-[80%] rounded-2xl overflow-hidden">
                             <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
-                                <Text className="font-bold text-lg text-gray-900">Chọn danh mục</Text>
+                                <Text className="font-bold text-lg text-gray-900">{t('job_form.select_category')}</Text>
                                 <TouchableOpacity onPress={() => setShowCategoryModal(false)}>
                                     <MaterialIcons name="close" size={24} color="#9ca3af" />
                                 </TouchableOpacity>
                             </View>
-                            <NestableScrollContainer>
+                            <ScrollView>
                                 {categories.map((cat: any) => (
                                     <TouchableOpacity
                                         key={cat.id}
@@ -529,48 +547,55 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                                 ))}
                                 {categories.length === 0 && (
                                     <View className="p-8 items-center">
-                                        <Text className="text-gray-500">Chưa có danh mục nào</Text>
+                                        <Text className="text-gray-500">{t('common.loading')}</Text>
                                     </View>
                                 )}
-                            </NestableScrollContainer>
+                            </ScrollView>
                         </View>
                     </TouchableOpacity>
                 </Modal>
 
-                {/* Date Picker Modal for iOS */}
+                {/* Date Picker Modal - Native iOS inline calendar */}
                 {Platform.OS === 'ios' && (
                     <Modal
                         transparent={true}
                         animationType="fade"
                         visible={showDatePicker}
                         onRequestClose={() => setShowDatePicker(false)}
+                        statusBarTranslucent
                     >
-                        <BlurView intensity={20} tint="dark" className="flex-1 justify-center px-4">
+                        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', paddingHorizontal: 16 }}>
                             <TouchableOpacity
                                 style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
                                 onPress={() => setShowDatePicker(false)}
                             />
-                            <View className="bg-white rounded-2xl overflow-hidden p-4">
-                                <View className="flex-row justify-between items-center mb-4">
-                                    <Text className="font-bold text-lg text-gray-900">Chọn ngày</Text>
-                                    <TouchableOpacity onPress={confirmIOSDate}>
-                                        <Text className="text-orange-600 font-bold text-base">Xong</Text>
+                            <View style={{ backgroundColor: '#fff', borderRadius: 20, overflow: 'hidden', padding: 12 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingBottom: 4 }}>
+                                    <Text style={{ fontWeight: '700', fontSize: 17, color: '#111827' }}>{t('job_form.select_date')}</Text>
+                                    <TouchableOpacity
+                                        onPress={() => setShowDatePicker(false)}
+                                        style={{ backgroundColor: '#fff7ed', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}
+                                    >
+                                        <Text style={{ color: Colors.light.tint, fontWeight: '700', fontSize: 15 }}>{t('job_form.done')}</Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View className="items-center">
-                                    <DateTimePicker
-                                        value={formData.deadline}
-                                        minimumDate={new Date()}
-                                        mode="date"
-                                        display="inline"
-                                        onChange={handleDateChange}
-                                        locale="vi-VN"
-                                        themeVariant="light"
-                                        style={{ height: 320, width: '100%' }}
-                                    />
-                                </View>
+                                <DateTimePicker
+                                    value={formData.deadline}
+                                    minimumDate={new Date()}
+                                    mode="date"
+                                    display="inline"
+                                    onChange={(_: any, selectedDate?: Date) => {
+                                        if (selectedDate) {
+                                            setFormData(prev => ({ ...prev, deadline: selectedDate }));
+                                        }
+                                    }}
+                                    locale="vi-VN"
+                                    themeVariant="light"
+                                    accentColor={Colors.light.tint}
+                                    style={{ width: '100%' }}
+                                />
                             </View>
-                        </BlurView>
+                        </View>
                     </Modal>
                 )}
 
@@ -581,11 +606,18 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                         minimumDate={new Date()}
                         mode="date"
                         display="default"
-                        onChange={handleDateChange}
+                        onChange={(_: any, selectedDate?: Date) => {
+                            setShowDatePicker(false);
+                            if (selectedDate) {
+                                setFormData(prev => ({ ...prev, deadline: selectedDate }));
+                            }
+                        }}
                     />
                 )}
 
-            </NestableScrollContainer>
+
+
+            </ScrollView>
 
             {/* Footer Buttons */}
             <View className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 flex-row justify-center gap-10">
@@ -594,7 +626,7 @@ export default function JobForm({ initialValues, onSubmit, submitLabel, onCancel
                     onPress={onCancel}
                     disabled={submitting}
                 >
-                    <Text className="text-gray-500 font-semibold">Hủy bỏ</Text>
+                    <Text className="text-gray-500 font-semibold">{t('job_form.cancel')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

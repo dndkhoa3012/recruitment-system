@@ -7,8 +7,10 @@ import { getCategories, createCategory, updateCategory, deleteCategory, getJobs 
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SwipeableItem } from '@/components/ui/SwipeableItem';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 export default function CategoriesScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const [categories, setCategories] = useState<any[]>([]);
@@ -65,7 +67,7 @@ export default function CategoriesScreen() {
 
     const handleSave = async () => {
         if (!categoryName.trim()) {
-            Alert.alert('Lỗi', 'Vui lòng nhập tên danh mục');
+            Alert.alert(t('common.error'), t('categories.error_empty_name'));
             return;
         }
 
@@ -74,10 +76,10 @@ export default function CategoriesScreen() {
             const slug = generateSlug(categoryName);
             if (editingCategory) {
                 await updateCategory(editingCategory.id, { name: categoryName, slug });
-                Alert.alert('Thành công', 'Cập nhật danh mục thành công');
+                Alert.alert(t('job_form.edit_success_title'), t('categories.success_update'));
             } else {
                 await createCategory({ name: categoryName, slug });
-                Alert.alert('Thành công', 'Tạo danh mục mới thành công');
+                Alert.alert(t('job_form.create_success_title'), t('categories.success_create'));
             }
             fetchData();
             setModalVisible(false);
@@ -85,7 +87,7 @@ export default function CategoriesScreen() {
             setEditingCategory(null);
         } catch (error: any) {
             console.error(error);
-            Alert.alert('Lỗi', error.response?.data?.error || 'Có lỗi xảy ra. Vui lòng thử lại.');
+            Alert.alert(t('common.error'), error.response?.data?.error || t('common.error'));
         } finally {
             setSubmitting(false);
         }
@@ -93,19 +95,19 @@ export default function CategoriesScreen() {
 
     const handleDelete = (id: number) => {
         Alert.alert(
-            "Xác nhận xóa",
-            "Bạn có chắc chắn muốn xóa danh mục này?",
+            t('categories.confirm_delete_title'),
+            t('categories.confirm_delete_msg'),
             [
-                { text: "Hủy", style: "cancel" },
+                { text: t('categories.cancel'), style: "cancel" },
                 {
-                    text: "Xóa",
+                    text: t('categories.delete'),
                     style: "destructive",
                     onPress: async () => {
                         try {
                             await deleteCategory(id);
                             fetchData();
                         } catch (e) {
-                            Alert.alert("Lỗi", "Không thể xóa danh mục.");
+                            Alert.alert(t('common.error'), t('categories.error_delete'));
                         }
                     }
                 }
@@ -133,7 +135,7 @@ export default function CategoriesScreen() {
                 <View className="bg-white p-4 rounded-xl border border-gray-100 flex-row items-center gap-4">
                     <View className="flex-1">
                         <Text className="text-lg font-bold text-gray-900">{item.name}</Text>
-                        <Text className="text-sm text-gray-500">{jobCounts[item.id] || 0} việc làm</Text>
+                        <Text className="text-sm text-gray-500">{t('categories.job_count', { count: jobCounts[item.id] || 0 })}</Text>
                     </View>
                 </View>
             </SwipeableItem>
@@ -147,7 +149,7 @@ export default function CategoriesScreen() {
                 onPress={() => openModal()}
             >
                 <MaterialIcons name="add-circle" size={24} color="white" />
-                <Text className="text-white font-bold text-lg">Thêm danh mục</Text>
+                <Text className="text-white font-bold text-lg">{t('categories.add_category_btn')}</Text>
             </TouchableOpacity>
         </View>
     );
@@ -158,7 +160,7 @@ export default function CategoriesScreen() {
 
             <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
                 <ScreenHeader
-                    title="Danh mục công việc"
+                    title={t('categories.title')}
                     showBack={true}
                     centerTitle={true}
                 />
@@ -175,7 +177,7 @@ export default function CategoriesScreen() {
                     keyExtractor={(item) => item.id.toString()}
                     ListHeaderComponent={renderHeader}
                     contentContainerStyle={{ paddingBottom: 100 }}
-                    ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">Chưa có danh mục nào</Text>}
+                    ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">{t('categories.empty_categories')}</Text>}
                 />
             )}
 
@@ -197,7 +199,7 @@ export default function CategoriesScreen() {
                     <View className="bg-white rounded-t-2xl p-6">
                         <View className="flex-row justify-between items-center mb-6">
                             <Text className="text-xl font-bold text-gray-900">
-                                {editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục'}
+                                {editingCategory ? t('categories.edit_category_modal_title') : t('categories.add_category_modal_title')}
                             </Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
                                 <MaterialIcons name="close" size={24} color="#9ca3af" />
@@ -205,10 +207,10 @@ export default function CategoriesScreen() {
                         </View>
 
                         <View className="mb-6">
-                            <Text className="text-sm font-semibold mb-2 text-gray-700">Tên danh mục <Text className="text-red-500">*</Text></Text>
+                            <Text className="text-sm font-semibold mb-2 text-gray-700">{t('categories.category_name_label')} <Text className="text-red-500">*</Text></Text>
                             <TextInput
                                 className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-base"
-                                placeholder="Nhập tên danh mục..."
+                                placeholder={t('categories.category_name_placeholder')}
                                 value={categoryName}
                                 onChangeText={setCategoryName}
                                 autoFocus
@@ -224,7 +226,7 @@ export default function CategoriesScreen() {
                                 <ActivityIndicator color="white" />
                             ) : (
                                 <Text className="text-white font-bold text-base">
-                                    {editingCategory ? 'Cập nhật' : 'Tạo mới'}
+                                    {editingCategory ? t('categories.update_btn') : t('categories.create_btn')}
                                 </Text>
                             )}
                         </TouchableOpacity>

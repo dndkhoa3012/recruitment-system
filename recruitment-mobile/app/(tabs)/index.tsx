@@ -75,9 +75,9 @@ export default function HomeScreen() {
       <ScrollView className="flex-1 px-4 pt-4" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Dashboard Stats */}
         <DashboardCard
-          title="Tổng việc làm"
+          title={t('overview.total_jobs')}
           count={stats.totalJobs}
-          subtitle={`Vị trí đang tuyển: ${stats.activeJobs}`}
+          subtitle={t('overview.active_jobs_count', { count: stats.activeJobs })}
           subtitleColor="text-green-600"
           icon="work"
           iconColor="#3b82f6"
@@ -85,9 +85,9 @@ export default function HomeScreen() {
         />
 
         <DashboardCard
-          title="Đang tuyển"
+          title={t('overview.active_jobs')}
           count={stats.activeJobs}
-          subtitle={`${stats.pendingCandidates} hồ sơ đang chờ`}
+          subtitle={t('overview.pending_profiles', { count: stats.pendingCandidates })}
           subtitleColor="text-gray-500"
           icon="person-add"
           iconColor="#3b82f6"
@@ -95,18 +95,18 @@ export default function HomeScreen() {
         />
 
         <DashboardCard
-          title="Tổng ứng viên"
+          title={t('overview.total_candidates')}
           count={stats.totalCandidates}
-          subtitle={`Mới trong tháng: ${stats.candidatesThisMonth}`}
+          subtitle={t('overview.new_this_month', { count: stats.candidatesThisMonth })}
           subtitleColor="text-blue-600"
           icon="people"
           iconColor="#2055e9ff"
           iconBgColor="bg-blue-50"
         />
         <DashboardCard
-          title="Đã tuyển"
+          title={t('overview.hired')}
           count={stats.hiredCandidates}
-          subtitle={`${stats.interviewedCandidates} đã phỏng vấn`}
+          subtitle={t('overview.interviewed', { count: stats.interviewedCandidates })}
           subtitleColor="text-green-600"
           icon="check-circle"
           iconColor="#50d469ff"

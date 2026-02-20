@@ -21,6 +21,11 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: true,
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          backgroundColor: colorScheme === 'dark' ? '#1c1c1e' : '#ffffff',
+          borderTopWidth: 1,
+          borderTopColor: colorScheme === 'dark' ? '#2c2c2e' : '#e5e5ea',
+        },
         header: ({ options }) => {
           const title = typeof options.headerTitle === 'string'
             ? options.headerTitle
@@ -37,7 +42,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('menu.overview'),
-          headerTitle: 'Tổng quan',
+          headerTitle: t('overview.title'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
@@ -45,7 +50,7 @@ export default function TabLayout() {
         name="jobs"
         options={{
           title: t('menu.jobs'),
-          headerTitle: 'Quản lý Việc làm',
+          headerTitle: t('jobs.title'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="briefcase.fill" color={color} />,
         }}
       />
@@ -53,7 +58,7 @@ export default function TabLayout() {
         name="candidates"
         options={{
           title: t('menu.candidates'),
-          headerTitle: 'Quản lý Ứng viên',
+          headerTitle: t('candidates.title'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.2.fill" color={color} />,
         }}
       />
@@ -61,7 +66,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: t('menu.settings'),
-          headerTitle: 'Cài đặt',
+          headerTitle: t('settings.settings'),
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
         }}
       />

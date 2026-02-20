@@ -18,17 +18,18 @@ export const SwipeableItem = forwardRef(({ children, onEdit, onDelete, container
         close: () => {
             swipeableRef.current?.close();
         }
-    }));
+    }), []);
 
     const renderRightActions = (progress: any, dragX: any) => {
         return (
             <View
-                className="flex-row items-center pl-2 h-full"
-                style={{ width: onEdit ? 168 : 88 }}
+                className="flex-row items-center h-full"
+                style={{ width: onEdit ? 160 : 80 }}
             >
                 {onEdit && (
                     <TouchableOpacity
-                        className="bg-blue-500 justify-center items-center w-20 h-full rounded-l-none"
+                        className="bg-blue-500 justify-center items-center h-full"
+                        style={{ width: 80 }}
                         onPress={() => {
                             swipeableRef.current?.close();
                             onEdit();
@@ -38,7 +39,8 @@ export const SwipeableItem = forwardRef(({ children, onEdit, onDelete, container
                     </TouchableOpacity>
                 )}
                 <TouchableOpacity
-                    className={`bg-red-500 justify-center items-center w-20 h-full ${onEdit ? 'rounded-r-xl' : 'rounded-xl'}`}
+                    className="bg-red-500 justify-center items-center h-full"
+                    style={{ width: 80 }}
                     onPress={() => {
                         swipeableRef.current?.close();
                         onDelete();
@@ -56,7 +58,8 @@ export const SwipeableItem = forwardRef(({ children, onEdit, onDelete, container
             renderRightActions={renderRightActions}
             friction={2}
             rightThreshold={40}
-            containerStyle={containerStyle}
+            overshootRight={false}
+            containerStyle={[{ overflow: 'hidden', borderRadius: 12 }, containerStyle]}
             onSwipeableOpen={onSwipeableOpen}
         >
             {children}

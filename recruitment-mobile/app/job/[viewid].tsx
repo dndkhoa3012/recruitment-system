@@ -205,6 +205,10 @@ export default function JobDetailScreen() {
         }
     };
 
+    const effectiveStatus = (job.status === 'active' && job.deadline && new Date(job.deadline) < new Date())
+        ? 'closed'
+        : job.status;
+
     return (
         <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
             <Stack.Screen options={{ headerShown: false }} />
@@ -215,12 +219,12 @@ export default function JobDetailScreen() {
                     {/* Status */}
                     <View className="flex-row items-center">
                         <MaterialIcons
-                            name={job.status === 'active' ? 'check-circle' : 'cancel'}
+                            name={effectiveStatus === 'active' ? 'check-circle' : 'cancel'}
                             size={20}
-                            color={job.status === 'active' ? '#15803d' : '#6b7280'}
+                            color={effectiveStatus === 'active' ? '#15803d' : '#6b7280'}
                         />
-                        <Text className={`ml-2 text-base font-bold ${job.status === 'active' ? 'text-green-700' : 'text-gray-500'}`}>
-                            {job.status === 'active' ? 'Đang tuyển' : 'Đã đóng'}
+                        <Text className={`ml-2 text-base font-bold ${effectiveStatus === 'active' ? 'text-green-700' : 'text-gray-500'}`}>
+                            {effectiveStatus === 'active' ? 'Đang tuyển' : 'Đã đóng'}
                         </Text>
                     </View>
 

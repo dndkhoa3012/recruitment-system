@@ -34,6 +34,12 @@ export default function CandidatesScreen() {
     useFocusEffect(
         useCallback(() => {
             fetchCandidates();
+            return () => {
+                if (prevOpenedRow.current) {
+                    prevOpenedRow.current.close();
+                    prevOpenedRow.current = null;
+                }
+            };
         }, [])
     );
 
@@ -49,20 +55,20 @@ export default function CandidatesScreen() {
 
     const handleDelete = (id: string) => {
         Alert.alert(
-            "Xác nhận xóa",
-            "Bạn có chắc chắn muốn xóa ứng viên này không?",
+            t('candidates.delete_confirm_title'),
+            t('candidates.delete_confirm_message'),
             [
-                { text: "Hủy", style: "cancel" },
+                { text: t('candidates.cancel'), style: 'cancel' },
                 {
-                    text: "Xóa",
-                    style: "destructive",
+                    text: t('candidates.delete'),
+                    style: 'destructive',
                     onPress: async () => {
                         try {
                             await deleteCandidate(id);
                             setCandidates(prev => prev.filter(c => c.id !== id));
-                            Alert.alert("Đã xóa", "Ứng viên đã được xóa thành công.");
+                            Alert.alert(t('candidates.delete_success'), t('candidates.delete_success_message'));
                         } catch (e) {
-                            Alert.alert("Lỗi", "Không thể xóa ứng viên.");
+                            Alert.alert(t('candidates.delete_error'), t('candidates.delete_error_message'));
                             console.error(e);
                         }
                     }
@@ -118,12 +124,12 @@ export default function CandidatesScreen() {
             {/* Filters */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 overflow-visible" onScrollBeginDrag={closeAnyOpenRow}>
                 {[
-                    { key: 'all', label: 'Tất cả' },
-                    { key: 'pending', label: 'Chờ duyệt' },
-                    { key: 'reviewing', label: 'Đang xem xét' },
-                    { key: 'interviewed', label: 'Đã phỏng vấn' },
-                    { key: 'accepted', label: 'Đã nhận' },
-                    { key: 'rejected', label: 'Đã từ chối' }
+                    { key: 'all', label: t('candidates.filter_all') },
+                    { key: 'pending', label: t('candidates.filter_pending') },
+                    { key: 'reviewing', label: t('candidates.filter_reviewing') },
+                    { key: 'interviewed', label: t('candidates.filter_interviewed') },
+                    { key: 'accepted', label: t('candidates.filter_accepted') },
+                    { key: 'rejected', label: t('candidates.filter_rejected') }
                 ].map((status) => (
                     <TouchableOpacity
                         key={status.key}
@@ -157,8 +163,7 @@ export default function CandidatesScreen() {
                     ListHeaderComponent={renderHeader}
                     contentContainerStyle={{ paddingBottom: 100 }}
                     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.light.tint} />}
-                    ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">Chưa có ứng viên nào</Text>}
-                    onScrollBeginDrag={closeAnyOpenRow}
+                    ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">{t('candidates.no_candidates')}</Text>}
                 />
             )}
         </View>

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import JobForm from '@/components/JobForm';
 import { getJobDetail, updateJob } from '@/services/api';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
-
+import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditJobScreen() {
@@ -14,6 +13,7 @@ export default function EditJobScreen() {
     const [job, setJob] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const { t } = useTranslation();
     const insets = useSafeAreaInsets();
 
     useEffect(() => {
@@ -28,7 +28,7 @@ export default function EditJobScreen() {
             setJob(data);
         } catch (error) {
             console.error(error);
-            Alert.alert('Lỗi', 'Không thể tải thông tin việc làm.');
+            Alert.alert(t('job_form.edit_error_title'), t('job_form.load_error_message'));
             router.back();
         } finally {
             setLoading(false);
@@ -37,19 +37,16 @@ export default function EditJobScreen() {
 
     const handleUpdate = async (values: any) => {
         try {
-            console.log('Updating job with values:', JSON.stringify(values, null, 2));
             await updateJob(id as string, values);
-            Alert.alert('Thành công', 'Cập nhật việc làm thành công!', [
+            Alert.alert(t('job_form.edit_success_title'), t('job_form.edit_success_message'), [
                 { text: 'OK', onPress: () => router.back() }
             ]);
         } catch (error: any) {
             console.error('Update Job Error:', error);
             if (error.response) {
-                console.error('Error Data:', error.response.data);
-                console.error('Error Status:', error.response.status);
-                Alert.alert('Lỗi', `Không thể cập nhật việc làm.\n${JSON.stringify(error.response.data)}`);
+                Alert.alert(t('job_form.edit_error_title'), `${t('job_form.edit_error_message')}\n${JSON.stringify(error.response.data)}`);
             } else {
-                Alert.alert('Lỗi', `Không thể cập nhật việc làm.\n${error.message}`);
+                Alert.alert(t('job_form.edit_error_title'), `${t('job_form.edit_error_message')}\n${error.message}`);
             }
         }
     };
@@ -69,20 +66,18 @@ export default function EditJobScreen() {
                 headerShown: true,
                 header: () => (
                     <View style={{ backgroundColor: 'white', paddingTop: insets.top }}>
-                        <ScreenHeader title="Chỉnh sửa việc làm" showBack={true} centerTitle={true} />
+                        <ScreenHeader title={t('job_form.edit_title')} showBack={true} centerTitle={true} />
                     </View>
                 ),
             }} />
-            {
-                job && (
-                    <JobForm
-                        initialValues={job}
-                        onSubmit={handleUpdate}
-                        submitLabel="Lưu"
-                        onCancel={() => router.back()}
-                    />
-                )
-            }
-        </View >
+            {job && (
+                <JobForm
+                    initialValues={job}
+                    onSubmit={handleUpdate}
+                    submitLabel={t('job_form.submit_save')}
+                    onCancel={() => router.back()}
+                />
+            )}
+        </View>
     );
 }

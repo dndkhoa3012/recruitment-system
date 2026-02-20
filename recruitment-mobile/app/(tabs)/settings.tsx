@@ -3,58 +3,67 @@ import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SettingsScreen() {
     const router = useRouter();
     const { t } = useTranslation();
+    const { logout } = useAuth();
 
     const MENU_ITEMS = [
         {
             id: 'management',
-            title: 'Quản lý',
+            title: t('settings.section_management'),
             items: [
                 {
                     id: 'categories',
                     icon: 'category',
-                    label: 'Danh mục công việc',
+                    label: t('settings.categories'),
                     route: '/settings/categories',
-                    color: '#f97316' // orange-500
+                    color: '#f97316'
                 }
             ]
         },
         {
             id: 'app',
-            title: 'Ứng dụng',
+            title: t('settings.section_app'),
             items: [
                 {
                     id: 'language',
                     icon: 'language',
-                    label: 'Ngôn ngữ',
-                    route: '/settings/languages', // Navigate to new screen
-                    color: '#10b981' // emerald-500
+                    label: t('settings.language'),
+                    route: '/settings/languages',
+                    color: '#10b981'
                 },
                 {
                     id: 'notifications',
                     icon: 'notifications',
-                    label: 'Thông báo',
-                    action: () => Alert.alert('Thông báo', 'Tính năng đang phát triển'),
-                    color: '#8b5cf6' // violet-500
+                    label: t('settings.notifications'),
+                    action: () => Alert.alert(t('settings.notifications'), t('settings.notifications_wip')),
+                    color: '#8b5cf6'
                 }
             ]
         },
         {
             id: 'account',
-            title: 'Tài khoản',
+            title: t('settings.section_account'),
             items: [
                 {
                     id: 'logout',
                     icon: 'logout',
-                    label: 'Đăng xuất',
-                    action: () => Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn đăng xuất?', [
-                        { text: 'Hủy', style: 'cancel' },
-                        { text: 'Đăng xuất', style: 'destructive' }
+                    label: t('settings.logout'),
+                    action: () => Alert.alert(t('settings.logout_confirm_title'), t('settings.logout_confirm_message'), [
+                        { text: t('settings.logout_cancel'), style: 'cancel' },
+                        {
+                            text: t('settings.logout_confirm'),
+                            style: 'destructive',
+                            onPress: async () => {
+                                await logout();
+                                // InitialLayout in _layout.tsx will handle the redirect to /login automatically
+                            }
+                        }
                     ]),
-                    color: '#ef4444' // red-500
+                    color: '#ef4444'
                 }
             ]
         }

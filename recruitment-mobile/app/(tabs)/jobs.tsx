@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, RefreshControl, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, RefreshControl, ScrollView, Alert, TouchableOpacity, Pressable } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useRouter, Stack, useFocusEffect } from 'expo-router';
 import { getJobs, deleteJob, getCandidates } from '@/services/api';
@@ -45,13 +45,27 @@ export default function JobsScreen() {
     useFocusEffect(
         useCallback(() => {
             fetchJobs();
+            return () => {
+                if (prevOpenedRow.current) {
+                    prevOpenedRow.current.close();
+                    prevOpenedRow.current = null;
+                }
+            };
         }, [])
     );
 
+    // Compute effective status considering deadline
+    const getEffectiveStatus = (job: any) => {
+        if (job.status === 'active' && job.deadline && new Date(job.deadline) < new Date()) {
+            return 'closed';
+        }
+        return job.status;
+    };
+
     const filteredJobs = React.useMemo(() => {
         if (filterStatus === 'all') return jobs;
-        if (filterStatus === 'active') return jobs.filter(j => j.status === 'active');
-        return jobs.filter(j => j.status !== 'active');
+        if (filterStatus === 'active') return jobs.filter(j => getEffectiveStatus(j) === 'active');
+        return jobs.filter(j => getEffectiveStatus(j) !== 'active');
     }, [jobs, filterStatus]);
 
     const onRefresh = () => {
@@ -61,21 +75,20 @@ export default function JobsScreen() {
 
     const handleDelete = (id: string) => {
         Alert.alert(
-            "Xác nhận xóa",
-            "Bạn có chắc chắn muốn xóa việc làm này không?",
+            t('jobs.delete_confirm_title'),
+            t('jobs.delete_confirm_message'),
             [
-                { text: "Hủy", style: "cancel" },
+                { text: t('jobs.cancel'), style: 'cancel' },
                 {
-                    text: "Xóa",
-                    style: "destructive",
+                    text: t('jobs.delete'),
+                    style: 'destructive',
                     onPress: async () => {
                         try {
                             await deleteJob(id);
-                            // Optimistic update or refresh
                             setJobs(prev => prev.filter(job => job.id !== id));
-                            Alert.alert("Đã xóa", "Việc làm đã được xóa thành công.");
+                            Alert.alert(t('jobs.delete_success'), t('jobs.delete_success_message'));
                         } catch (e) {
-                            Alert.alert("Lỗi", "Không thể xóa việc làm.");
+                            Alert.alert(t('jobs.delete_error'), t('jobs.delete_error_message'));
                             console.error(e);
                         }
                     }
@@ -116,22 +129,26 @@ export default function JobsScreen() {
                 onDelete={() => handleDelete(item.id)}
                 onSwipeableOpen={() => onRowOpened(item.id.toString())}
             >
-                <TouchableOpacity
-                    className="bg-white p-4 rounded-xl border border-gray-100 relative"
+                <Pressable
+                    style={{
+                        backgroundColor: '#ffffff',
+                        padding: 16,
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: '#f3f4f6',
+                    }}
                     onPress={() => {
                         closeAnyOpenRow();
                         router.push(`/job/${item.id}`);
                     }}
-                    activeOpacity={0.7}
-                    delayPressIn={100}
                 >
                     <View className="flex-row justify-between items-start mb-3">
                         <View className="flex-1 mr-2">
                             <Text className="text-lg font-bold text-gray-900" numberOfLines={1}>{item.title}</Text>
                         </View>
-                        <View className={`px-3 py-1 rounded-full ${item.status === 'active' ? 'bg-green-100' : 'bg-gray-100'}`}>
-                            <Text className={`text-xs font-bold ${item.status === 'active' ? 'text-green-700' : 'text-gray-700'}`}>
-                                {item.status === 'active' ? 'Đang tuyển' : 'Đã đóng'}
+                        <View className={`px-3 py-1 rounded-full ${getEffectiveStatus(item) === 'active' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                            <Text className={`text-xs font-bold ${getEffectiveStatus(item) === 'active' ? 'text-green-700' : 'text-gray-700'}`}>
+                                {getEffectiveStatus(item) === 'active' ? t('jobs.status_active') : t('jobs.status_closed')}
                             </Text>
                         </View>
                     </View>
@@ -164,7 +181,7 @@ export default function JobsScreen() {
                             </View>
                         </View>
                     </View>
-                </TouchableOpacity>
+                </Pressable>
             </SwipeableItem>
         </View>
     );
@@ -180,7 +197,7 @@ export default function JobsScreen() {
                 }}
             >
                 <MaterialIcons name="add-circle" size={24} color="white" />
-                <Text className="text-white font-bold text-lg">Tạo việc làm mới</Text>
+                <Text className="text-white font-bold text-lg">{t('jobs.create_new')}</Text>
             </TouchableOpacity>
 
             {/* Filters */}
@@ -190,7 +207,7 @@ export default function JobsScreen() {
                     className={`px-4 py-1.5 rounded-full mr-2 ${filterStatus === 'all' ? 'bg-orange-600' : 'bg-gray-200'}`}
                 >
                     <Text className={`text-sm font-medium ${filterStatus === 'all' ? 'text-white' : 'text-gray-700'}`}>
-                        Tất cả ({jobs.length})
+                        {t('jobs.filter_all')} ({jobs.length})
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -198,7 +215,7 @@ export default function JobsScreen() {
                     className={`px-4 py-1.5 rounded-full mr-2 ${filterStatus === 'active' ? 'bg-orange-600' : 'bg-gray-200'}`}
                 >
                     <Text className={`text-sm font-medium ${filterStatus === 'active' ? 'text-white' : 'text-gray-700'}`}>
-                        Đang tuyển ({jobs.filter(j => j.status === 'active').length})
+                        {t('jobs.filter_active')} ({jobs.filter(j => getEffectiveStatus(j) === 'active').length})
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -206,7 +223,7 @@ export default function JobsScreen() {
                     className={`px-4 py-1.5 rounded-full mr-2 ${filterStatus === 'closed' ? 'bg-orange-600' : 'bg-gray-200'}`}
                 >
                     <Text className={`text-sm font-medium ${filterStatus === 'closed' ? 'text-white' : 'text-gray-700'}`}>
-                        Đã đóng ({jobs.filter(j => j.status !== 'active').length})
+                        {t('jobs.filter_closed')} ({jobs.filter(j => getEffectiveStatus(j) !== 'active').length})
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -232,7 +249,6 @@ export default function JobsScreen() {
                     contentContainerStyle={{ paddingBottom: 100 }}
                     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.light.tint} />}
                     ListEmptyComponent={<Text className="text-center text-gray-500 mt-10">{t('jobs.no_jobs')}</Text>}
-                    onScrollBeginDrag={closeAnyOpenRow}
                 />
             )}
         </View>

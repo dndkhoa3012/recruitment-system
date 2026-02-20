@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "recruitment-mobile",
-    "slug": "recruitment-mobile",
+    "name": "Tuyển dụng JT",
+    "slug": "tuyen-dung-jt",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.phuquoctrip.recruitment",
+      "buildNumber": "3",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -44,6 +49,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a14db293-ed2a-40fa-a0da-5cde372c3610"
+      }
     }
   }
 }
