@@ -15,7 +15,6 @@ function ApplyContent() {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '',
-        birthYear: '',
         phone: '',
         email: '',
         jobId: jobId || '',
@@ -122,7 +121,6 @@ function ApplyContent() {
                 // Reset form
                 setFormData({
                     fullName: '',
-                    birthYear: '',
                     phone: '',
                     email: '',
                     jobId: '',
@@ -225,37 +223,21 @@ function ApplyContent() {
                             </div>
                         </div>
 
-                        {/* Name and Birth Year */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-gray-700">
-                                    Họ và tên <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none">person</span>
-                                    <input
-                                        name="fullName"
-                                        value={formData.fullName}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none"
-                                        placeholder="Nhập họ và tên"
-                                        type="text"
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-gray-700">Năm sinh</label>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none">calendar_today</span>
-                                    <input
-                                        name="birthYear"
-                                        value={formData.birthYear}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none"
-                                        placeholder="VD: 1995"
-                                        type="text"
-                                    />
-                                </div>
+                        {/* Name */}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-gray-700">
+                                Họ và tên <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none">person</span>
+                                <input
+                                    name="fullName"
+                                    value={formData.fullName}
+                                    onChange={handleInputChange}
+                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none"
+                                    placeholder="Nhập họ và tên"
+                                    type="text"
+                                />
                             </div>
                         </div>
 

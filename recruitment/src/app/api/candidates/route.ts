@@ -12,7 +12,7 @@ export async function GET(request: Request) {
         const search = searchParams.get('search')
 
         const where: any = {
-            deletedAt: null
+            isDeleted: 0
         }
 
         if (status && status !== 'all') {
@@ -75,6 +75,10 @@ export async function POST(request: Request) {
             status
         } = body
 
+        // Adjust for Vietnam time (UTC+7)
+        const now = new Date();
+        const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+
         const candidate = await prisma.candidate.create({
             data: {
                 fullName,
@@ -83,7 +87,10 @@ export async function POST(request: Request) {
                 resume,
                 coverLetter,
                 jobId: Number(jobId),
-                status: status || 'pending'
+                status: status || 'pending',
+                appliedAt: localTime,
+                createdAt: localTime,
+                updatedAt: localTime
             }
         })
 

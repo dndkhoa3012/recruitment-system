@@ -13,7 +13,7 @@ export async function GET(
         const candidate = await prisma.candidate.findFirst({
             where: {
                 id: Number(params.id),
-                deletedAt: null
+                isDeleted: 0
             },
             include: {
                 job: {
@@ -50,9 +50,15 @@ export async function PUT(
         const params = await props.params;
         const body = await request.json()
 
+        const now = new Date();
+        const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+
         const candidate = await prisma.candidate.update({
             where: { id: Number(params.id) },
-            data: body
+            data: {
+                ...body,
+                updatedAt: localTime
+            }
         })
 
         return NextResponse.json(candidate)
@@ -72,10 +78,16 @@ export async function DELETE(
 ) {
     try {
         const params = await props.params;
+
+        const now = new Date();
+        const localTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+
         await prisma.candidate.update({
             where: { id: Number(params.id) },
             data: {
-                deletedAt: new Date()
+                isDeleted: 1,
+                deletedAt: localTime,
+                updatedAt: localTime
             }
         })
 

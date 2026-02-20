@@ -63,6 +63,7 @@ model Candidate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime? // Soft delete timestamp
+  isDeleted   Int      @default(0) // 0 = visible, 1 = deleted
   
   @@index([jobId])
   @@index([email])

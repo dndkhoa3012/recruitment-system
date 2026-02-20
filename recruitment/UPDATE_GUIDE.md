@@ -27,7 +27,7 @@ ssh root@103.159.50.249
 ```
 **Bước 2: Chạy lệnh cập nhật:**
 ```bash
-cd /var/www/recruitment-system/recruitment && git pull origin main && docker compose up -d --build
+cd /var/www/recruitment-system/recruitment && git pull origin main && docker compose pull && docker compose up -d
 ```
 
 ---

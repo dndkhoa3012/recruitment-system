@@ -27,6 +27,18 @@ export async function GET(request: Request) {
             ]
         }
 
+        // Auto-close jobs whose deadline has passed
+        await prisma.job.updateMany({
+            where: {
+                status: 'active',
+                deadline: {
+                    lt: new Date(),
+                    not: null,
+                },
+            },
+            data: { status: 'closed' },
+        });
+
         const jobs = await prisma.job.findMany({
             where,
             orderBy: { createdAt: 'desc' },
