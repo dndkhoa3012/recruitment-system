@@ -4,22 +4,23 @@ Tài liệu này dùng để lưu trữ các lệnh quan trọng khi vận hành
 
 ---
 
-## 1. CẬP NHẬT NHANH (Khuyên dùng) - ~2-3 phút ⚡
+## 1. CẬP NHẬT NHANH (Khuyên dùng) - ~5-7 phút ⚡
 
-Nhanh nhất. VPS tự build, không cần upload lớn. Yêu cầu nhập mật khẩu VPS.
+Build trên Mac (có cache, nhanh), kéo lên VPS ngay (không chờ Watchtower).
+Yêu cầu nhập mật khẩu VPS khi được hỏi.
 
 ```bash
 ./deploy-fast.sh "Ghi chú cập nhật"
 ```
-*   Đẩy code lên Git.
-*   SSH vào VPS, kéo code mới về và build trực tiếp.
-*   Không cần đợi (cập nhật ngay lập tức).
+*   Build image trên Mac (có cache) → push Docker Hub → SSH kéo VPS ngay.
+*   Không cần đợi Watchtower 5 phút.
+*   VPS KHÔNG bị tốn RAM (build trên Mac).
 
 ---
 
-## 2. CẬP NHẬT TỰ ĐỘNG - ~15 phút (Không cần ngồi chờ)
+## 2. CẬP NHẬT TỰ ĐỘNG - ~15 phút (Dùng khi không có ở máy)
 
-Chạy xong là đi làm việc khác. VPS tự cập nhật sau 5 phút.
+Build từ đầu, không dùng cache. Chạy xong là đi làm việc khác.
 
 ```bash
 ./deploy.sh "Ghi chú cập nhật"

@@ -22,9 +22,9 @@ services:
   # Next.js Application
   app:
     image: dndkhoa3012/recruitment-app:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     container_name: recruitment_app
     restart: always
     environment:
