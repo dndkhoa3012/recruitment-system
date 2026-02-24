@@ -18,7 +18,7 @@ export default function EditJobPage() {
     const [loading, setLoading] = useState(true)
     const [categories, setCategories] = useState([])
     const [loadingCategories, setLoadingCategories] = useState(true)
-    const [initialValues, setInitialValues] = useState<any>(null)
+    const [jobLoaded, setJobLoaded] = useState(false)
 
     useEffect(() => {
         fetchCategories()
@@ -73,13 +73,15 @@ export default function EditJobPage() {
                 benefits = []
             }
 
-            setInitialValues({
+            const values = {
                 ...job,
                 description,
                 requirements,
                 benefits,
                 deadline: job.deadline ? dayjs(job.deadline) : null
-            })
+            }
+            form.setFieldsValue(values)
+            setJobLoaded(true)
             setLoading(false)
         } catch (error) {
             message.error('Không thể tải thông tin việc làm')
@@ -138,7 +140,6 @@ export default function EditJobPage() {
                     form={form}
                     layout="vertical"
                     onFinish={onFinish}
-                    initialValues={initialValues}
                 >
                     <Form.Item
                         label="Tiêu đề"

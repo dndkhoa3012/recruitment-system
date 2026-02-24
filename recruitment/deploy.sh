@@ -18,7 +18,7 @@ git push origin main
 
 # 2. Build Image (cho chip Intel/AMD của VPS)
 echo "📦 Đang đóng gói code (Build)..."
-docker build -t dndkhoa3012/recruitment-app:latest . --platform linux/amd64
+docker build --no-cache -t dndkhoa3012/recruitment-app:latest . --platform linux/amd64
 
 # 3. Push Image lên Docker Hub
 echo "☁️ Đang đẩy lên mây (Push)..."
