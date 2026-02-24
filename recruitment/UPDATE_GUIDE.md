@@ -4,40 +4,49 @@ Tài liệu này dùng để lưu trữ các lệnh quan trọng khi vận hành
 
 ---
 
-## 1. CẬP NHẬT TỰ ĐỘNG (Khuyên dùng) - "Một Chạm"
+## 1. CẬP NHẬT NHANH (Khuyên dùng) - ~2-3 phút ⚡
 
-Thích hợp cho mọi trường hợp. Chỉ cần chạy lệnh này ở máy tính của anh:
+Nhanh nhất. VPS tự build, không cần upload lớn. Yêu cầu nhập mật khẩu VPS.
+
+```bash
+./deploy-fast.sh "Ghi chú cập nhật"
+```
+*   Đẩy code lên Git.
+*   SSH vào VPS, kéo code mới về và build trực tiếp.
+*   Không cần đợi (cập nhật ngay lập tức).
+
+---
+
+## 2. CẬP NHẬT TỰ ĐỘNG - ~15 phút (Không cần ngồi chờ)
+
+Chạy xong là đi làm việc khác. VPS tự cập nhật sau 5 phút.
 
 ```bash
 ./deploy.sh "Ghi chú cập nhật"
 ```
-*   Tự động lưu code lên Git.
-*   Tự động Build & Push lên VPS.
+*   Build & Push lên Docker Hub.
 *   VPS tự phát hiện và cập nhật sau 5 phút.
 
 ---
 
-## 2. CẬP NHẬT THỦ CÔNG TRÊN VPS (Tiết kiệm băng thông)
+## 3. CẬP NHẬT THỦ CÔNG TRÊN VPS (Khi cần)
 
-Thích hợp khi mạng yếu hoặc chỉ sửa chỉnh sửa nhỏ. VPS sẽ tự tải code về và tự build.
-
-**Bước 1: SSH vào VPS**
+SSH vào VPS và chạy:
 ```bash
 ssh root@103.159.50.249
 ```
-**Bước 2: Chạy lệnh cập nhật:**
 ```bash
-cd /var/www/recruitment-system/recruitment && git pull origin main && docker compose pull && docker compose up -d
+cd /var/www/recruitment-system/recruitment && git pull origin main && docker compose up -d --build
 ```
 
 ---
 
-## 3. LỆNH CỨU HỘ KHẨN CẤP (Khi cần reset hoàn toàn)
+## 4. LỆNH CỨU HỘ KHẨN CẤP (Khi cần reset hoàn toàn)
 
 Dùng khi web bị lỗi nặng hoặc muốn đảm bảo mọi thứ sạch sẽ nhất.
 
 ```bash
-ssh root@103.159.50.249 "cd /var/www/recruitment-system/recruitment && docker compose down && docker compose pull && docker compose up -d"
+ssh root@103.159.50.249 "cd /var/www/recruitment-system/recruitment && docker compose down && docker compose up -d --build"
 ```
 
 ---
