@@ -96,8 +96,8 @@ export default function JobDetailPage() {
                     <div className="flex flex-col md:flex-row gap-6 items-start">
                         <div className="size-24 bg-gray-50 dark:bg-gray-800 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-gray-700">
                             <div
-                                className="w-full h-full bg-cover bg-center"
-                                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVgt1Q5AugIQe9tcDpOl9IvmV8ufml9jOyY9L2OitO_zKgATdbWM24-bzJwD9tT30yVzFBVZYUv7CYcTvElNemVETHAqYuKeEEfXBzdmrorBdm0W1v1JCaLizf-V6GxjiYgg-_zAGEnieVai6YRoTMnrjhCXbU7WnmL-EFkcXLeO1bhLpLPs5QwattncMOdrAxdupETALmd8OGi1Pxnph-3K6ctYG_JxPfvZTJdYzhJz0PdOG4FupttOnCSYcIJp9y9slHgzxKCA')" }}
+                                className="w-full h-full bg-contain bg-no-repeat bg-center scale-75"
+                                style={{ backgroundImage: "url('/johns-tours-logo.png')" }}
                             />
                         </div>
                         <div className="flex-1">
