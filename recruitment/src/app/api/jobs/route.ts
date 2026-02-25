@@ -92,7 +92,11 @@ export async function POST(request: Request) {
                 benefits,
                 status: 'active',
                 publishedAt: new Date(),
-                deadline: deadline ? new Date(deadline) : null
+                deadline: deadline ? (() => {
+                    const d = new Date(deadline);
+                    d.setHours(23, 59, 59, 999);
+                    return d;
+                })() : null
             }
         })
 

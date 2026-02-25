@@ -49,7 +49,11 @@ export async function PUT(
             where: { id: Number(params.id) },
             data: {
                 ...body,
-                deadline: body.deadline ? new Date(body.deadline) : null
+                deadline: body.deadline ? (() => {
+                    const d = new Date(body.deadline);
+                    d.setHours(23, 59, 59, 999);
+                    return d;
+                })() : null
             }
         })
 
